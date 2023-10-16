@@ -4,10 +4,10 @@ using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;
-using System.Timers;
-using System;
-using System.Linq;
 using MonoGame.Extended;
+using System.Timers;
+using System.Linq;
+using System;
 
 namespace MonoTerrain.Scripts
 {

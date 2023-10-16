@@ -1,7 +1,7 @@
 ﻿using static MonoTerrain.Scripts.GameHelper;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 
 namespace MonoTerrain.Scripts.Gameplay {
     public class TerrainGenerator {

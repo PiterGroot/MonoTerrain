@@ -61,14 +61,13 @@ namespace MonoTerrain.Scripts
         }
 
         protected override void LoadContent() {
-            TextDrawer.InstantiateTextLabel("Seed", "Seed:" + TerrainGenerator.seed, Vector2.Zero, Color.Transparent, Vector2.One);
-            TextDrawer.InstantiateTextLabel("Size", "Size:" + TerrainGenerator.width + " " + TerrainGenerator.height, Vector2Helper.Up * 35, Color.Transparent, Vector2.One);
-            TextDrawer.InstantiateTextLabel("Octaves", "Octaves:" + TerrainGenerator.octaves, Vector2Helper.Up * 70, Color.Transparent, Vector2.One);
-            TextDrawer.InstantiateTextLabel("Persistence", "Persistence:" + TerrainGenerator.persistence, Vector2Helper.Up * 105, Color.Transparent, Vector2.One);
-            TextDrawer.InstantiateTextLabel("Lacunarity", "Lacunarity:" + TerrainGenerator.lacunarity, Vector2Helper.Up * 140, Color.Transparent, Vector2.One);
-            TextDrawer.InstantiateTextLabel("Smoothness", "Smoothness:" + TerrainGenerator.smoothness, Vector2Helper.Up * 175, Color.Transparent, Vector2.One);
-            
-            TextDrawer.InstantiateTextLabel("DebugInfo", "Left ckick for generation info", Vector2Helper.Up * 1000, Color.White, Vector2.One);
+            Vector2 textSize = Vector2.One * .5f;
+            TextDrawer.InstantiateTextLabel("Seed", "Seed:" + TerrainGenerator.seed, Vector2.Zero, Color.White, textSize);
+            TextDrawer.InstantiateTextLabel("Size", "Size:" + TerrainGenerator.width + " " + TerrainGenerator.height, Vector2Helper.Up * 20, Color.White, textSize);
+            TextDrawer.InstantiateTextLabel("Octaves", "Octaves:" + TerrainGenerator.octaves, Vector2Helper.Up * 40, Color.White, textSize);
+            TextDrawer.InstantiateTextLabel("Persistence", "Persistence:" + TerrainGenerator.persistence, Vector2Helper.Up * 60, Color.White, textSize);
+            TextDrawer.InstantiateTextLabel("Lacunarity", "Lacunarity:" + TerrainGenerator.lacunarity, Vector2Helper.Up * 80, Color.White, textSize);
+            TextDrawer.InstantiateTextLabel("Smoothness", "Smoothness:" + TerrainGenerator.smoothness, Vector2Helper.Up * 100, Color.White, textSize);
             
             base.LoadContent();
         }
@@ -83,21 +82,8 @@ namespace MonoTerrain.Scripts
             CameraController.Instance.UpdateCamera(gameTime);
             GameIdentityManager.Instance.DrawGameIdentities(spriteBatch, GraphicsDevice);
 
-            HandleDebugUI();
-
             OnUpdate?.Invoke(gameTime);
             base.Update(gameTime);
-        }
-
-        private void HandleDebugUI() {
-            InputHandler.OnMouseDown(() => showDebugInfo = !showDebugInfo);
-            
-            TextDrawer.SetState("Seed", showDebugInfo);
-            TextDrawer.SetState("Size", showDebugInfo);
-            TextDrawer.SetState("Octaves", showDebugInfo);
-            TextDrawer.SetState("Persistence", showDebugInfo);
-            TextDrawer.SetState("Lacunarity", showDebugInfo);
-            TextDrawer.SetState("Smoothness", showDebugInfo);
         }
     }
 #pragma warning restore IDE0090 
