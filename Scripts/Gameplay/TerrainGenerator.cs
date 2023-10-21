@@ -21,7 +21,7 @@ namespace MonoTerrain.Scripts.Gameplay {
        
         public static int seed = 12345;
 
-        public static readonly int width = 375;
+        public static readonly int width = 875;
         public static readonly int height = 350;
        
         private readonly int heightReduction = 10;
@@ -36,8 +36,8 @@ namespace MonoTerrain.Scripts.Gameplay {
         /// </summary>
 
         private Dictionary<int, TilePreset> tileLibrary = new Dictionary<int, TilePreset>() {
-            { 1, new TilePreset("Stone", "cube", 1, Color.Gray) },
-            { 2, new TilePreset("Grass", "cube", 1, Color.Green) },
+            { 1, new TilePreset("Stone", "cube", -1, Color.Gray) },
+            { 2, new TilePreset("Grass", "cube", -1, Color.Green) },
         };
 
         public TerrainGenerator() {

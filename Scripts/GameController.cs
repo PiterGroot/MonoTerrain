@@ -5,6 +5,9 @@ using Microsoft.Xna.Framework.Input;
 using MonoTerrain.Scripts.Gameplay;
 using Microsoft.Xna.Framework;
 using System;
+using MonoGame.ImGuiNet;
+using ImGuiNET;
+using System.Drawing;
 
 namespace MonoTerrain.Scripts
 {
@@ -23,8 +26,7 @@ namespace MonoTerrain.Scripts
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-
-        private bool showDebugInfo;
+        private ImGuiRenderer guiRenderer;
 
         public static GameController Instance;
         public GameController()
@@ -39,12 +41,16 @@ namespace MonoTerrain.Scripts
 
             IsFixedTimeStep = false;
             Window.IsBorderless = false;
+            IsMouseVisible = true;
         }
 
         protected override void Initialize()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             Viewport = GraphicsDevice.Viewport;
+
+            guiRenderer = new ImGuiRenderer(this);
+            guiRenderer.RebuildFontAtlas();
 
             GameHelper.GameController = this;
             GameHelper.GraphicsDevice = GraphicsDevice;
@@ -60,18 +66,6 @@ namespace MonoTerrain.Scripts
             base.Initialize();
         }
 
-        protected override void LoadContent() {
-            Vector2 textSize = Vector2.One * .5f;
-            TextDrawer.InstantiateTextLabel("Seed", "Seed:" + TerrainGenerator.seed, Vector2.Zero, Color.White, textSize);
-            TextDrawer.InstantiateTextLabel("Size", "Size:" + TerrainGenerator.width + " " + TerrainGenerator.height, Vector2Helper.Up * 20, Color.White, textSize);
-            TextDrawer.InstantiateTextLabel("Octaves", "Octaves:" + TerrainGenerator.octaves, Vector2Helper.Up * 40, Color.White, textSize);
-            TextDrawer.InstantiateTextLabel("Persistence", "Persistence:" + TerrainGenerator.persistence, Vector2Helper.Up * 60, Color.White, textSize);
-            TextDrawer.InstantiateTextLabel("Lacunarity", "Lacunarity:" + TerrainGenerator.lacunarity, Vector2Helper.Up * 80, Color.White, textSize);
-            TextDrawer.InstantiateTextLabel("Smoothness", "Smoothness:" + TerrainGenerator.smoothness, Vector2Helper.Up * 100, Color.White, textSize);
-            
-            base.LoadContent();
-        }
-
         protected override void Update(GameTime gameTime)
         {
             KeyboardState = Keyboard.GetState();
@@ -84,6 +78,19 @@ namespace MonoTerrain.Scripts
 
             OnUpdate?.Invoke(gameTime);
             base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime) {
+            guiRenderer.BeforeLayout(gameTime);
+            ImGui.Begin("MonoTerrain");
+
+            if (ImGui.CollapsingHeader("Generation Config")) {
+
+                //ImGui.Text(" Some Text");
+            }
+            ImGui.End();
+            guiRenderer.AfterLayout();
+            base.Draw(gameTime);
         }
     }
 #pragma warning restore IDE0090 

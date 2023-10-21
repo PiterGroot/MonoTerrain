@@ -3,14 +3,15 @@ using MonoTerrain.Scripts.Gameplay;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Linq;
+using MonoGame.ImGuiNet;
 
 namespace MonoTerrain.Scripts {
     public class GameIdentityManager {
 
         private Viewport viewport;
         private Dictionary<int, GameIdentity> ActiveGameIdentities { get; set; }
-
         public static GameIdentityManager Instance;
+        
         public GameIdentityManager() {
             ActiveGameIdentities = new Dictionary<int, GameIdentity>();
             viewport = GameController.Instance.Viewport;
@@ -21,7 +22,7 @@ namespace MonoTerrain.Scripts {
             if (!ActiveGameIdentities.ContainsKey(gameIdentity.UniqueId)) {
                 gameIdentity.Transform.position = position;
                 ActiveGameIdentities.Add(gameIdentity.UniqueId, gameIdentity);
-                UpdateGameIdentitiesOrder();
+                UpdateGameIdentitiesOrder(gameIdentity);
             }
             else {
                 string message = $"GameIdentity {gameIdentity.Name}[{gameIdentity.UniqueId}] is already instantiated";
@@ -32,7 +33,7 @@ namespace MonoTerrain.Scripts {
         public void DestroyIdentity(GameIdentity gameIdentity) {
             if (ActiveGameIdentities.ContainsKey(gameIdentity.UniqueId)) {
                 ActiveGameIdentities.Remove(gameIdentity.UniqueId);
-                UpdateGameIdentitiesOrder();
+                UpdateGameIdentitiesOrder(gameIdentity);
             }
             else {
                 string message = $"GameIdentity {gameIdentity.Name}[{gameIdentity.UniqueId}] cannot be destroyed because it does not exist";
@@ -42,7 +43,9 @@ namespace MonoTerrain.Scripts {
 
         public bool IsUniqueIdentity(int identityId) => !ActiveGameIdentities.ContainsKey(identityId);
 
-        private void UpdateGameIdentitiesOrder() {
+        private void UpdateGameIdentitiesOrder(GameIdentity gameIdentity) {
+            if (gameIdentity.RenderOrder == -1) return;
+            
             List<KeyValuePair<int, GameIdentity>> identityList = ActiveGameIdentities.ToList();
             identityList.Sort((identityA, identityB) => identityA.Value.RenderOrder.CompareTo(identityB.Value.RenderOrder));
 
