@@ -23,10 +23,11 @@ namespace MonoTerrain.Scripts
         public Viewport Viewport { get; private set; }
         public KeyboardState KeyboardState { get; private set; }
         public MouseState MouseState { get; private set; }
+        public ImGuiRenderer guiRenderer { get; private set; }
+        public TerrainGenerator TerrainGenerator { get; private set; }
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
-        private ImGuiRenderer guiRenderer;
 
         public static GameController Instance;
         public GameController()
@@ -61,7 +62,7 @@ namespace MonoTerrain.Scripts
             new CameraController(Window, GraphicsDevice, Viewport);
             new GameIdentityManager();
 
-            new TerrainGenerator();
+            TerrainGenerator = new TerrainGenerator();
             
             base.Initialize();
         }
@@ -75,22 +76,10 @@ namespace MonoTerrain.Scripts
 
             CameraController.Instance.UpdateCamera(gameTime);
             GameIdentityManager.Instance.DrawGameIdentities(spriteBatch, GraphicsDevice);
+            TerrainGenerator.DrawDebugWindow(gameTime);
 
             OnUpdate?.Invoke(gameTime);
             base.Update(gameTime);
-        }
-
-        protected override void Draw(GameTime gameTime) {
-            guiRenderer.BeforeLayout(gameTime);
-            ImGui.Begin("MonoTerrain");
-
-            if (ImGui.CollapsingHeader("Generation Config")) {
-
-                //ImGui.Text(" Some Text");
-            }
-            ImGui.End();
-            guiRenderer.AfterLayout();
-            base.Draw(gameTime);
         }
     }
 #pragma warning restore IDE0090 

@@ -1,11 +1,14 @@
 ﻿using static MonoTerrain.Scripts.GameHelper;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using MonoGame.ImGuiNet;
+using ImGuiNET;
 using System;
 
 namespace MonoTerrain.Scripts.Gameplay {
     public class TerrainGenerator {
 
+        public static List<GameIdentity> tiles = new List<GameIdentity>();
         private int[,] map;
         private OpenSimplexNoise simplexNoise;
         
@@ -13,16 +16,20 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         private readonly bool generateOnAwake = true;
         private readonly bool randomizeConfig = false;
-        private readonly bool randomSeed = true;
-        
+        private readonly bool randomSeed = false;
+        private bool autoGenerate;
+        private bool resetCameraPosition = true;
+
+        private Vector2 seedMinMax = new Vector2(1, 999999);
+
         /// <summary>
         /// Terrain config settings
         /// </summary>
-       
+
         public static int seed = 12345;
 
-        public static readonly int width = 875;
-        public static readonly int height = 350;
+        public static int width = 875;
+        public static int height = 350;
        
         private readonly int heightReduction = 10;
 
@@ -41,10 +48,22 @@ namespace MonoTerrain.Scripts.Gameplay {
         };
 
         public TerrainGenerator() {
+            GameController.Instance.OnUpdate += OnUpdate;
             if (generateOnAwake) Generate();
         }
 
+        private void OnUpdate(GameTime gameTime) {
+            if(autoGenerate) Generate();
+        }
+
         private void Generate() {
+            map = null;
+
+            for (int i = 0; i < tiles.Count; i++) {
+                GameIdentityManager.Instance.DestroyIdentity(tiles[i]);
+            }
+            tiles.Clear();
+
             if (randomSeed) seed = RandomHandler.GetRandomIntNumber(0, 99999);
             if (randomizeConfig) {
                 octaves = RandomHandler.GetRandomIntNumber(1, 9);
@@ -60,7 +79,9 @@ namespace MonoTerrain.Scripts.Gameplay {
             map = ApplyNoisePass(map, octaves, persistence, lacunarity, smoothness);
             
             PopulateMap();
-            CameraController.Instance.Camera.Position = GetGridPosition(width / 2, 0, 16 * tileSize);
+
+            if(resetCameraPosition) 
+                CameraController.Instance.Camera.Position = GetGridPosition(width / 2, 0, 16 * tileSize);
 
             if (!randomizeConfig) return;
 
@@ -122,6 +143,39 @@ namespace MonoTerrain.Scripts.Gameplay {
             return new Vector2(xPos * tileSize, yPos * tileSize);
         }
 
+        public void DrawDebugWindow(GameTime gameTime) {
+            ImGuiRenderer guiRenderer = GameController.Instance.guiRenderer;
+            guiRenderer.BeforeLayout(gameTime);
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(260, 500));
+            ImGui.Begin("MonoTerrain - Generation Config", ImGuiWindowFlags.NoResize);
+
+            ImGui.PushItemWidth(100);
+            ImGui.InputInt("World seed", ref seed); ImGui.SameLine();
+
+            seed = Math.Clamp(seed, (int)seedMinMax.X, (int)seedMinMax.Y);
+            if (ImGui.Button("Random")) seed = RandomHandler.GetRandomIntNumber(0, 999999);
+
+            ImGui.PushItemWidth(75);
+            ImGui.InputInt("Width", ref width, 0); ImGui.SameLine();
+            ImGui.InputInt("Height", ref height, 0);
+
+            ImGui.NewLine();
+
+            ImGui.PushItemWidth(160);
+            ImGui.InputInt("Ocataves", ref octaves, 1);
+            ImGui.SliderFloat("Persistence", ref persistence, .1f, 1f);
+            ImGui.SliderFloat("Lacunarity", ref lacunarity, 1f, 5f);
+            ImGui.SliderFloat("Smoothness", ref smoothness, 1f, 100f);
+
+            ImGui.Checkbox("Reset Camera Postion", ref resetCameraPosition);
+
+            if (ImGui.Button("Generate")) Generate(); ImGui.SameLine();
+            ImGui.Checkbox("Auto Generate", ref autoGenerate);
+            
+            ImGui.End();
+            guiRenderer.AfterLayout();
+        }
+
         private struct TilePreset {
             public string tileName;
             public string tileTexture;
@@ -143,6 +197,7 @@ namespace MonoTerrain.Scripts.Gameplay {
 
                 Vector2 tilePosition = GetGridPosition(x, y, tileTextureHeight * tileSize);
                 GameIdentityManager.Instance.InstantiateIdentity(tile, tilePosition);
+                tiles.Add(tile);
             }
         }
     }

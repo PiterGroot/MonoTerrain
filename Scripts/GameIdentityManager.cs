@@ -29,14 +29,18 @@ namespace MonoTerrain.Scripts {
                 GameHelper.ExitWithDebugMessage(message);
             }
         }
-
-        public void DestroyIdentity(GameIdentity gameIdentity) {
-            if (ActiveGameIdentities.ContainsKey(gameIdentity.UniqueId)) {
-                ActiveGameIdentities.Remove(gameIdentity.UniqueId);
-                UpdateGameIdentitiesOrder(gameIdentity);
+        
+        public void DestroyIdentity(GameIdentity gameIdentity) 
+            => DestroyIdentity(gameIdentity.UniqueId);
+       
+        public void DestroyIdentity(int identityId) {
+            if (ActiveGameIdentities.ContainsKey(identityId)) {
+                ActiveGameIdentities.Remove(identityId);
+                //UpdateGameIdentitiesOrder(ActiveGameIdentities[identityId]);
             }
             else {
-                string message = $"GameIdentity {gameIdentity.Name}[{gameIdentity.UniqueId}] cannot be destroyed because it does not exist";
+                GameIdentity identity = ActiveGameIdentities[identityId];
+                string message = $"GameIdentity {identity.Name}[{identity.UniqueId}] cannot be destroyed because it does not exist";
                 GameHelper.ExitWithDebugMessage(message);
             }
         }
