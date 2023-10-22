@@ -1,13 +1,9 @@
-﻿using static MonoTerrain.Scripts.GameHelper;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoTerrain.Scripts.Gameplay;
 using Microsoft.Xna.Framework;
-using System;
 using MonoGame.ImGuiNet;
-using ImGuiNET;
-using System.Drawing;
+using System;
 
 namespace MonoTerrain.Scripts
 {
@@ -28,6 +24,7 @@ namespace MonoTerrain.Scripts
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
+        private DebugMenu debugMenu;
 
         public static GameController Instance;
         public GameController()
@@ -53,6 +50,7 @@ namespace MonoTerrain.Scripts
             guiRenderer = new ImGuiRenderer(this);
             guiRenderer.RebuildFontAtlas();
 
+
             GameHelper.GameController = this;
             GameHelper.GraphicsDevice = GraphicsDevice;
             GameHelper.spriteBatch = spriteBatch;
@@ -63,6 +61,7 @@ namespace MonoTerrain.Scripts
             new GameIdentityManager();
 
             TerrainGenerator = new TerrainGenerator();
+            debugMenu = new DebugMenu(TerrainGenerator);
             
             base.Initialize();
         }
@@ -76,7 +75,7 @@ namespace MonoTerrain.Scripts
 
             CameraController.Instance.UpdateCamera(gameTime);
             GameIdentityManager.Instance.DrawGameIdentities(spriteBatch, GraphicsDevice);
-            TerrainGenerator.DrawDebugWindow(gameTime);
+            debugMenu.DrawDebugWindow(gameTime);
 
             OnUpdate?.Invoke(gameTime);
             base.Update(gameTime);

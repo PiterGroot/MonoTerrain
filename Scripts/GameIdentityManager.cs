@@ -3,7 +3,6 @@ using MonoTerrain.Scripts.Gameplay;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Linq;
-using MonoGame.ImGuiNet;
 
 namespace MonoTerrain.Scripts {
     public class GameIdentityManager {
@@ -30,13 +29,18 @@ namespace MonoTerrain.Scripts {
             }
         }
         
-        public void DestroyIdentity(GameIdentity gameIdentity) 
-            => DestroyIdentity(gameIdentity.UniqueId);
+        public void DestroyIdentity(GameIdentity gameIdentity, bool skipSelfCheck = false) 
+            => DestroyIdentity(gameIdentity.UniqueId, skipSelfCheck);
        
-        public void DestroyIdentity(int identityId) {
+        public void DestroyIdentity(int identityId, bool skipSelfCheck = false) {
+            if (skipSelfCheck) {
+                ActiveGameIdentities.Remove(identityId);
+                return;
+            }
+
             if (ActiveGameIdentities.ContainsKey(identityId)) {
                 ActiveGameIdentities.Remove(identityId);
-                //UpdateGameIdentitiesOrder(ActiveGameIdentities[identityId]);
+                UpdateGameIdentitiesOrder(ActiveGameIdentities[identityId]);
             }
             else {
                 GameIdentity identity = ActiveGameIdentities[identityId];

@@ -8,7 +8,7 @@ using System;
 namespace MonoTerrain.Scripts.Gameplay {
     public class TerrainGenerator {
 
-        public static List<GameIdentity> tiles = new List<GameIdentity>();
+        public static Dictionary<Vector2, GameIdentity> tiles = new Dictionary<Vector2, GameIdentity>();
         private int[,] map;
         private OpenSimplexNoise simplexNoise;
         
@@ -17,26 +17,27 @@ namespace MonoTerrain.Scripts.Gameplay {
         private readonly bool generateOnAwake = true;
         private readonly bool randomizeConfig = false;
         private readonly bool randomSeed = false;
-        private bool autoGenerate;
-        private bool resetCameraPosition = true;
 
-        private Vector2 seedMinMax = new Vector2(1, 999999);
+        public bool autoGenerate;
+        public bool resetCameraPosition = true;
+
+        public Vector2 seedMinMax = new Vector2(1, 999999);
 
         /// <summary>
         /// Terrain config settings
         /// </summary>
 
-        public static int seed = 12345;
+        public int seed = 12345;
 
-        public static int width = 875;
-        public static int height = 350;
+        public int width = 875;
+        public int height = 350;
        
         private readonly int heightReduction = 10;
 
-        public static int octaves = 4;
-        public static float persistence = 0.3f;
-        public static float lacunarity = 5;
-        public static float smoothness = 90;
+        public int octaves = 4;
+        public float persistence = 0.3f;
+        public float lacunarity = 5;
+        public float smoothness = 90;
 
         /// <summary>
         /// Terrain config settings
@@ -56,11 +57,11 @@ namespace MonoTerrain.Scripts.Gameplay {
             if(autoGenerate) Generate();
         }
 
-        private void Generate() {
+        public void Generate() {
             map = null;
 
-            for (int i = 0; i < tiles.Count; i++) {
-                GameIdentityManager.Instance.DestroyIdentity(tiles[i]);
+            foreach (GameIdentity identity in tiles.Values) {
+                GameIdentityManager.Instance.DestroyIdentity(identity, true);
             }
             tiles.Clear();
 
@@ -143,39 +144,6 @@ namespace MonoTerrain.Scripts.Gameplay {
             return new Vector2(xPos * tileSize, yPos * tileSize);
         }
 
-        public void DrawDebugWindow(GameTime gameTime) {
-            ImGuiRenderer guiRenderer = GameController.Instance.guiRenderer;
-            guiRenderer.BeforeLayout(gameTime);
-            ImGui.SetNextWindowSize(new System.Numerics.Vector2(260, 500));
-            ImGui.Begin("MonoTerrain - Generation Config", ImGuiWindowFlags.NoResize);
-
-            ImGui.PushItemWidth(100);
-            ImGui.InputInt("World seed", ref seed); ImGui.SameLine();
-
-            seed = Math.Clamp(seed, (int)seedMinMax.X, (int)seedMinMax.Y);
-            if (ImGui.Button("Random")) seed = RandomHandler.GetRandomIntNumber(0, 999999);
-
-            ImGui.PushItemWidth(75);
-            ImGui.InputInt("Width", ref width, 0); ImGui.SameLine();
-            ImGui.InputInt("Height", ref height, 0);
-
-            ImGui.NewLine();
-
-            ImGui.PushItemWidth(160);
-            ImGui.InputInt("Ocataves", ref octaves, 1);
-            ImGui.SliderFloat("Persistence", ref persistence, .1f, 1f);
-            ImGui.SliderFloat("Lacunarity", ref lacunarity, 1f, 5f);
-            ImGui.SliderFloat("Smoothness", ref smoothness, 1f, 100f);
-
-            ImGui.Checkbox("Reset Camera Postion", ref resetCameraPosition);
-
-            if (ImGui.Button("Generate")) Generate(); ImGui.SameLine();
-            ImGui.Checkbox("Auto Generate", ref autoGenerate);
-            
-            ImGui.End();
-            guiRenderer.AfterLayout();
-        }
-
         private struct TilePreset {
             public string tileName;
             public string tileTexture;
@@ -197,7 +165,7 @@ namespace MonoTerrain.Scripts.Gameplay {
 
                 Vector2 tilePosition = GetGridPosition(x, y, tileTextureHeight * tileSize);
                 GameIdentityManager.Instance.InstantiateIdentity(tile, tilePosition);
-                tiles.Add(tile);
+                tiles.Add(tile.Transform.position, tile);
             }
         }
     }
