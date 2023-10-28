@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using static MonoTerrain.Scripts.GameHelper;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoTerrain.Scripts.Gameplay;
 using Microsoft.Xna.Framework;
@@ -21,10 +22,13 @@ namespace MonoTerrain.Scripts
         public MouseState MouseState { get; private set; }
         public ImGuiRenderer guiRenderer { get; private set; }
         public TerrainGenerator TerrainGenerator { get; private set; }
+        public static Vector2 mouseWorldPos { get; private set; }
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
         private DebugMenu debugMenu;
+
+        private GameIdentity cursor;
 
         public static GameController Instance;
         public GameController()
@@ -39,7 +43,7 @@ namespace MonoTerrain.Scripts
 
             IsFixedTimeStep = false;
             Window.IsBorderless = false;
-            IsMouseVisible = true;
+            IsMouseVisible = false;
         }
 
         protected override void Initialize()
@@ -50,7 +54,6 @@ namespace MonoTerrain.Scripts
             guiRenderer = new ImGuiRenderer(this);
             guiRenderer.RebuildFontAtlas();
 
-
             GameHelper.GameController = this;
             GameHelper.GraphicsDevice = GraphicsDevice;
             GameHelper.spriteBatch = spriteBatch;
@@ -59,11 +62,22 @@ namespace MonoTerrain.Scripts
 
             new CameraController(Window, GraphicsDevice, Viewport);
             new GameIdentityManager();
+            new WorldInteractor(this);
 
             TerrainGenerator = new TerrainGenerator();
             debugMenu = new DebugMenu(TerrainGenerator);
             
             base.Initialize();
+        }
+
+        public Vector2 GetCenterPoint() {
+            return new Vector2(Viewport.Width / 2, Viewport.Height / 2);
+        }
+
+        protected override void LoadContent() {
+            cursor = new GameIdentity("Cursor", "crosshair", 1);
+            GameIdentityManager.Instance.InstantiateIdentity(cursor, Vector2.Zero);
+            base.LoadContent();
         }
 
         protected override void Update(GameTime gameTime)
@@ -76,6 +90,12 @@ namespace MonoTerrain.Scripts
             CameraController.Instance.UpdateCamera(gameTime);
             GameIdentityManager.Instance.DrawGameIdentities(spriteBatch, GraphicsDevice);
             debugMenu.DrawDebugWindow(gameTime);
+            
+            Vector2 position = CameraController.Instance.Camera.ScreenToWorld(MouseState.Position.ToVector2() - GetCenterPoint());
+            position.Y *= -1;
+            mouseWorldPos = position;
+
+            cursor.Transform.position = position;
 
             OnUpdate?.Invoke(gameTime);
             base.Update(gameTime);

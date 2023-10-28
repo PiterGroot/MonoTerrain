@@ -26,7 +26,6 @@ namespace MonoTerrain.Scripts
                 if (value == null) return;
                 
                 gameController = value;
-                RandomHandler.InitializeRandom();
                 GameController.OnUpdate += OnUpdate;
                 TextDrawer.defaultSpriteFont = gameController.Content.Load<SpriteFont>("font");
             }
@@ -162,6 +161,7 @@ namespace MonoTerrain.Scripts
             private static Random random;
             
             public static void SetSeed(int seed) => random = new Random(seed);
+            
             public static void InitializeRandom() {
                 random = new Random();
             }
@@ -175,10 +175,12 @@ namespace MonoTerrain.Scripts
             }
 
             public static float GetRandomFloatingNumber(float minimum, float maximum) {
+                if (random == null) InitializeRandom();
                 return (float)random.NextDouble() * (maximum - minimum) + minimum;
             }
 
             public static int GetRandomIntNumber(int minimum, int maximum) {
+                if (random == null) InitializeRandom();
                 return random.Next(minimum, maximum + 1);
             }
         }

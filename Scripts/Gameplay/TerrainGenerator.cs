@@ -12,7 +12,8 @@ namespace MonoTerrain.Scripts.Gameplay {
         private int[,] map;
         private OpenSimplexNoise simplexNoise;
         
-        public static float tileSize = 1;
+        public static readonly float tileSize = 1;
+        public static readonly int tileTextureSize = 16;
 
         private readonly bool generateOnAwake = true;
         private readonly bool randomizeConfig = false;
@@ -49,11 +50,10 @@ namespace MonoTerrain.Scripts.Gameplay {
         };
 
         public TerrainGenerator() {
-            GameController.Instance.OnUpdate += OnUpdate;
             if (generateOnAwake) Generate();
         }
 
-        private void OnUpdate(GameTime gameTime) {
+        public void AutoUpdate(GameTime gameTime) {
             if(autoGenerate) Generate();
         }
 
@@ -82,15 +82,7 @@ namespace MonoTerrain.Scripts.Gameplay {
             PopulateMap();
 
             if(resetCameraPosition) 
-                CameraController.Instance.Camera.Position = GetGridPosition(width / 2, 0, 16 * tileSize);
-
-            if (!randomizeConfig) return;
-
-            print("Seed " + seed);
-            print("Octaves " + octaves);
-            print("Persistence " + persistence);
-            print("Lacunarity " + lacunarity);
-            print("Smoothness " + smoothness);
+                CameraController.Instance.Camera.Position = GetGridTilePosition(width / 2, 0, 16 * tileSize);
         }
 
         private int[,] InitializeMap(int width, int height) {
@@ -106,7 +98,7 @@ namespace MonoTerrain.Scripts.Gameplay {
                     int tileKey = map[x, y];
                     if (tileKey == 0) continue; //ignore air tile
                     
-                    tileLibrary[map[x, y]].InstantiateTile(x, y, 16);
+                    tileLibrary[map[x, y]].InstantiateTile(x, y, tileTextureSize);
                 }
             }
         }
@@ -140,8 +132,15 @@ namespace MonoTerrain.Scripts.Gameplay {
             return map;
         }
 
-        public static Vector2 GetGridPosition(float xPos, float yPos, float tileSize) {
+        public static Vector2 GetGridTilePosition(float xPos, float yPos, float tileSize) {
             return new Vector2(xPos * tileSize, yPos * tileSize);
+        }
+
+        public static Vector2 GetGridMousePosition() {
+            return new Vector2(
+                (float)Math.Round(GameController.mouseWorldPos.X / tileTextureSize) * tileTextureSize,
+                (float)Math.Round(GameController.mouseWorldPos.Y / tileTextureSize) * tileTextureSize
+            );
         }
 
         private struct TilePreset {
@@ -163,7 +162,7 @@ namespace MonoTerrain.Scripts.Gameplay {
                 tile.Transform.SetScale(Vector2.One * tileSize);
                 tile.Visual.textureColor = tileColor;
 
-                Vector2 tilePosition = GetGridPosition(x, y, tileTextureHeight * tileSize);
+                Vector2 tilePosition = GetGridTilePosition(x, y, tileTextureHeight * tileSize);
                 GameIdentityManager.Instance.InstantiateIdentity(tile, tilePosition);
                 tiles.Add(tile.Transform.position, tile);
             }

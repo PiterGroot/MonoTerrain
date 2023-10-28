@@ -51,7 +51,7 @@ namespace MonoTerrain.Scripts {
 
         public bool IsUniqueIdentity(int identityId) => !ActiveGameIdentities.ContainsKey(identityId);
 
-        private void UpdateGameIdentitiesOrder(GameIdentity gameIdentity) {
+        private void UpdateGameIdentitiesOrder(GameIdentity gameIdentity) { //TODO: too expensive, needs rework
             if (gameIdentity.RenderOrder == -1) return;
             
             List<KeyValuePair<int, GameIdentity>> identityList = ActiveGameIdentities.ToList();

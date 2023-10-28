@@ -4,13 +4,14 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace MonoTerrain.Scripts.Gameplay {
     
     public class CameraController {
         private int currentMouseWheelValue;
 
-        private float startZoomValue = .7f;
+        private float startZoomValue = 1f;
         private int zoomSpeed = 3;
 
         public float MovementSpeed = 5;
@@ -37,13 +38,21 @@ namespace MonoTerrain.Scripts.Gameplay {
             currentMouseWheelValue = mouseState.ScrollWheelValue;
 
             if (currentMouseWheelValue > previousMouseWheelValue) {
-                Camera.ZoomIn(1 / 12f * Camera.Zoom * zoomSpeed);
+                //Camera.ZoomIn(1 / 12f * Camera.Zoom * zoomSpeed);
             }
             if (currentMouseWheelValue < previousMouseWheelValue) {
-                Camera.ZoomOut(1 / 12f * Camera.Zoom * zoomSpeed);
+                //Camera.ZoomOut(1 / 12f * Camera.Zoom * zoomSpeed);
             }
-            Camera.Move(GetMovementDirection(keyboardState) * currentMovementSpeed * gameTime.GetElapsedSeconds());
+
+
+            Camera.Position += GetMovementDirection(keyboardState) * currentMovementSpeed * gameTime.GetElapsedSeconds();
+
+            Vector2 newPosition = (GetMovementDirection(keyboardState) * currentMovementSpeed * gameTime.GetElapsedSeconds());
+            Camera.Position = Vector2.Lerp(Camera.Position, Camera.Position + newPosition, 5 * gameTime.GetElapsedSeconds());
         }
+
+    
+
 
         private Vector2 GetMovementDirection(KeyboardState keyboardState) {
             var movementDirection = Vector2.Zero;

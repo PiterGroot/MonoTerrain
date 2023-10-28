@@ -3,9 +3,8 @@ using Microsoft.Xna.Framework;
 
 namespace MonoTerrain.Scripts {
     public class GameIdentity{
-
-        public GameIdentity(string objectName = "", string texture = "", int renderOrder = 0, bool orginSelf = true) {
-            Name = objectName == string.Empty ? "NewGameIdentity" : objectName;
+        public GameIdentity(string identityName = "", string texture = "", int renderOrder = 0, bool centeredOrigin = true) {
+            Name = identityName == string.Empty ? "NewGameIdentity" : identityName;
 
             while (true) {
                 UniqueId = GameHelper.RandomHandler.GetRandomIntNumber(0, 99999);
@@ -23,7 +22,7 @@ namespace MonoTerrain.Scripts {
             Transform = new Transform();
             Visual = new GameVisual(loadedTexture, Color.White);
 
-            if(orginSelf) Transform.originOffset = new Vector2(loadedTexture.Width / 2f, loadedTexture.Height / 2f);
+            if(centeredOrigin) Transform.originOffset = new Vector2(loadedTexture.Width / 2f, loadedTexture.Height / 2f);
 
             RenderOrder = renderOrder;
             Active = true;
