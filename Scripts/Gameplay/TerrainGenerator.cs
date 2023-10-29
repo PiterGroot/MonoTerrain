@@ -24,6 +24,9 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         public Vector2 seedMinMax = new Vector2(1, 999999);
 
+        public int grassDepthMin = 2;
+        public int grassDepthMax = 5;
+
         /// <summary>
         /// Terrain config settings
         /// </summary>
@@ -120,7 +123,7 @@ namespace MonoTerrain.Scripts.Gameplay {
                 totalHeight += height / heightReduction;
                 
                 for (int y = 0; y < totalHeight; y++) {
-                    int randomGrassDepth = RandomHandler.GetRandomIntNumber(2, 5);
+                    int randomGrassDepth = RandomHandler.GetRandomIntNumber(grassDepthMin, grassDepthMax);
                     if(y >= Math.Floor(totalHeight) - randomGrassDepth) {
                         map[x, y] = 2;
                         continue;

@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 
 namespace MonoTerrain.Scripts {
-    public class GameIdentity{
+    public struct GameIdentity{
         public GameIdentity(string identityName = "", string texture = "", int renderOrder = 0, bool centeredOrigin = true) {
             Name = identityName == string.Empty ? "NewGameIdentity" : identityName;
 

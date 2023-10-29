@@ -8,12 +8,15 @@ namespace MonoTerrain.Scripts {
     public class GameIdentityManager {
 
         private Viewport viewport;
+        private Vector2 positionOffset;
+
         private Dictionary<int, GameIdentity> ActiveGameIdentities { get; set; }
         public static GameIdentityManager Instance;
-        
+
         public GameIdentityManager() {
             ActiveGameIdentities = new Dictionary<int, GameIdentity>();
             viewport = GameController.Instance.Viewport;
+            positionOffset = new Vector2(viewport.Width / 2f, viewport.Height / 2f); 
             Instance = this;
         }
 
@@ -75,7 +78,6 @@ namespace MonoTerrain.Scripts {
         }
 
         private void DrawIdentity(SpriteBatch batch, GameIdentity gameIdentity) {
-            Vector2 positionOffset = new Vector2(viewport.Width / 2f, viewport.Height / 2f);
             Vector2 position = new Vector2(gameIdentity.Transform.position.X, -gameIdentity.Transform.position.Y);
 
             batch.Draw(gameIdentity.Visual.targetTexture, position + positionOffset, null, 

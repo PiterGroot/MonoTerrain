@@ -1,6 +1,7 @@
 ﻿using static MonoTerrain.Scripts.GameHelper;
 using Microsoft.Xna.Framework.Input;
 using MonoTerrain.Scripts.Gameplay;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using MonoGame.ImGuiNet;
 using ImGuiNET;
@@ -9,10 +10,17 @@ using System;
 namespace MonoTerrain.Scripts {
     public class DebugMenu {
         private TerrainGenerator terrainGenerator;
-        public DebugMenu(TerrainGenerator terrainGenerator) => this.terrainGenerator = terrainGenerator;
+        public DebugMenu(TerrainGenerator terrainGenerator) {
+            this.terrainGenerator = terrainGenerator;
+            windowTabs = new List<WindowTab>() {
+                { new WindowTab("Shaping", ShowShapingTab) },
+                { new WindowTab("Decoration", ShowDecorationTab) },
+            };
+            currentWindowTab += windowTabs[0].drawWindow;
+        }
 
-        private bool showShapingTab = true;
-        private bool showDecorationTab;
+        private readonly List<WindowTab> windowTabs;
+        private Action currentWindowTab;
 
         public void DrawDebugWindow(GameTime gameTime) {
             ImGuiRenderer guiRenderer = GameController.Instance.guiRenderer;
@@ -22,22 +30,23 @@ namespace MonoTerrain.Scripts {
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(265, 500));
             ImGui.Begin("MonoTerrain - Terrain Tool", ImGuiWindowFlags.NoResize);
 
-            if (ImGui.Button("Shaping")) showShapingTab = !showShapingTab;
-            ImGui.SameLine();
-
-            if (ImGui.Button("Decoration")) showDecorationTab = !showDecorationTab;
+            int tabs = windowTabs.Count;
+            for (int i = 0; i < tabs; i++) {
+                if (ImGui.Button(windowTabs[i].windowName)) {
+                    currentWindowTab = null;
+                    currentWindowTab += windowTabs[i].drawWindow;
+                }
+                if(i < tabs - 1) ImGui.SameLine();
+            }
             ImGui.NewLine();
 
-            if (showShapingTab) ShowShapingTab();
-            if (showDecorationTab) ShowDecorationTab();
-
             SetMouseVisible(ImGui.IsWindowHovered());
+            currentWindowTab?.Invoke(); ImGui.NewLine();
+
+            if (ImGui.Button("Generate")) terrainGenerator.Generate(); ImGui.SameLine();
+            ImGui.Checkbox("Auto Generate", ref terrainGenerator.autoGenerate); ImGui.NewLine();
 
             ImGui.End();
-
-            ImGui.SetWindowPos(new System.Numerics.Vector2(465, 0));
-            ImGui.SetNextWindowSize(new System.Numerics.Vector2(265, 265));
-            ImGui.Begin("MonoTerrain - Debug Window", ImGuiWindowFlags.NoResize);
 
             DrawGameInfoWindow();
 
@@ -46,6 +55,10 @@ namespace MonoTerrain.Scripts {
         }
 
         private void DrawGameInfoWindow() {
+            ImGui.SetWindowPos(new System.Numerics.Vector2(465, 0));
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(265, 265));
+            ImGui.Begin("MonoTerrain - Debug Window", ImGuiWindowFlags.NoResize);
+
             ImGui.Text("Info");
             ImGui.Text("FPS: "); ImGui.SameLine();
             ImGui.TextDisabled($"{FramesHelper.AverageFramesPerSecond:F2}");
@@ -60,11 +73,25 @@ namespace MonoTerrain.Scripts {
             ImGui.Text("Mouse pos: "); ImGui.SameLine();
 
             ImGui.TextDisabled((GameController.mouseWorldPos * CameraController.Instance.Camera.Zoom).ToString());
+           
+            ImGui.Text("Selected tile: "); ImGui.SameLine();
+            ImGui.ColorButton("Grass", new System.Numerics.Vector4(0, 255, 0, 255));
+
+            ImGui.Checkbox("Reset Camera Postion", ref terrainGenerator.resetCameraPosition);
+
+            if (ImGui.Button("Snap to zero point")) CameraController.Instance.Camera.Position = Vector2.Zero;
+            ImGui.SameLine();
+            if (ImGui.Button("Reset Mouse Postion")) {
+                Vector2 center = GetCenterPoint();
+                Mouse.SetPosition((int)center.X, (int)center.Y);
+            }
         }
 
         private void ShowDecorationTab() {
-            ImGui.Text("Selected tile: "); ImGui.SameLine();
-            ImGui.ColorButton("Grass", new System.Numerics.Vector4(0, 255, 0, 255));
+            ImGui.Text("Grass depth"); 
+            ImGui.PushItemWidth(75); 
+            ImGui.InputInt("Min", ref terrainGenerator.grassDepthMin, 1); ImGui.SameLine();
+            ImGui.InputInt("Max", ref terrainGenerator.grassDepthMax, 1);
         }
 
         private void ShowShapingTab() {
@@ -85,18 +112,16 @@ namespace MonoTerrain.Scripts {
             ImGui.SliderFloat("Persistence", ref terrainGenerator.persistence, .1f, 1f);
             ImGui.SliderFloat("Lacunarity", ref terrainGenerator.lacunarity, 1f, 5f);
             ImGui.SliderFloat("Smoothness", ref terrainGenerator.smoothness, 1f, 200f);
+        }
 
-            ImGui.Checkbox("Reset Camera Postion", ref terrainGenerator.resetCameraPosition);
+        private struct WindowTab {
+            public string windowName;
+            public Action drawWindow;
 
-            if (ImGui.Button("Snap to zero point")) CameraController.Instance.Camera.Position = Vector2.Zero;
-            ImGui.SameLine();
-            if (ImGui.Button("Reset Mouse Postion")) {
-                Vector2 center = GetCenterPoint();
-                Mouse.SetPosition((int)center.X, (int)center.Y);
+            public WindowTab(string windowName, Action windowToDraw) {
+                this.windowName = windowName;
+                drawWindow = windowToDraw;
             }
-
-            if (ImGui.Button("Generate")) terrainGenerator.Generate(); ImGui.SameLine();
-            ImGui.Checkbox("Auto Generate", ref terrainGenerator.autoGenerate); ImGui.NewLine();
         }
     }
 }
