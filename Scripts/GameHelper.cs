@@ -17,7 +17,9 @@ namespace MonoTerrain.Scripts
         public static SpriteBatch spriteBatch { get; set; }
         public static GraphicsDevice GraphicsDevice { get; set; }
 
+        private static Viewport viewport;
         private static GameController gameController;
+
         public static GameController GameController
         {
             get => gameController;
@@ -28,6 +30,7 @@ namespace MonoTerrain.Scripts
                 gameController = value;
                 GameController.OnUpdate += OnUpdate;
                 TextDrawer.defaultSpriteFont = gameController.Content.Load<SpriteFont>("font");
+                viewport = value.Viewport;
             }
         }
 
@@ -79,6 +82,14 @@ namespace MonoTerrain.Scripts
         private static void OnUpdate(GameTime gameTime) {
             TextDrawer.UpdateTextLabels();
             FramesHelper.Update(gameTime.GetElapsedSeconds());
+        }
+
+        public static Vector2 GetCenterPoint() {
+            return new Vector2(viewport.Width / 2, viewport.Height / 2);
+        }
+
+        public static void SetMouseVisible(bool state) {
+            GameController.IsMouseVisible = state;
         }
 
         public static class TextDrawer {

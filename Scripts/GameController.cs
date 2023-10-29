@@ -70,10 +70,6 @@ namespace MonoTerrain.Scripts
             base.Initialize();
         }
 
-        public Vector2 GetCenterPoint() {
-            return new Vector2(Viewport.Width / 2, Viewport.Height / 2);
-        }
-
         protected override void LoadContent() {
             cursor = new GameIdentity("Cursor", "crosshair", 1);
             GameIdentityManager.Instance.InstantiateIdentity(cursor, Vector2.Zero);
