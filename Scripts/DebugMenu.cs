@@ -10,6 +10,18 @@ using System;
 namespace MonoTerrain.Scripts {
     public class DebugMenu {
         private TerrainGenerator terrainGenerator;
+
+        private readonly List<WindowTab> windowTabs;
+        private Action currentWindowTab;
+
+        private bool drawChunkWindow;
+
+        private int currentSelectedChunk;
+        private string[] chunkStrings;
+
+        private int xCamTeleportPosition;
+        private int yCamTeleportPosition;
+
         public DebugMenu(TerrainGenerator terrainGenerator) {
             this.terrainGenerator = terrainGenerator;
             windowTabs = new List<WindowTab>() {
@@ -17,41 +29,71 @@ namespace MonoTerrain.Scripts {
                 { new WindowTab("Decoration", ShowDecorationTab) },
             };
             currentWindowTab += windowTabs[0].drawWindow;
+            
+            chunkStrings = new string[terrainGenerator.chunkCounter];
+            for (int i = 0; i < chunkStrings.Length; i++) {
+                chunkStrings[i] = $"Chunk {i}";
+            }
         }
-
-        private readonly List<WindowTab> windowTabs;
-        private Action currentWindowTab;
 
         public void DrawDebugWindow(GameTime gameTime) {
             ImGuiRenderer guiRenderer = GameController.Instance.guiRenderer;
             guiRenderer.BeforeLayout(gameTime);
             terrainGenerator.AutoUpdate(gameTime);
 
-            ImGui.SetNextWindowSize(new System.Numerics.Vector2(265, 500));
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(275, 500));
             ImGui.Begin("MonoTerrain - Terrain Tool", ImGuiWindowFlags.NoResize);
 
+            DrawWindowTabs();
+            ImGui.NewLine();
+
+            currentWindowTab?.Invoke(); ImGui.NewLine();
+
+            if (ImGui.Button("Generate")) terrainGenerator.Generate(); ImGui.SameLine();
+            ImGui.Checkbox("Auto Generate", ref terrainGenerator.autoGenerate); ImGui.NewLine();
+
+            SetMouseVisible(ImGui.IsWindowHovered() || ImGui.IsAnyItemHovered());
+            
+            ImGui.End();
+            DrawGameInfoWindow();
+            ImGui.End();
+
+            if (drawChunkWindow)
+                DrawChunkInspector();
+
+            guiRenderer.AfterLayout();
+        }
+
+        private void DrawWindowTabs() {
             int tabs = windowTabs.Count;
             for (int i = 0; i < tabs; i++) {
                 if (ImGui.Button(windowTabs[i].windowName)) {
                     currentWindowTab = null;
                     currentWindowTab += windowTabs[i].drawWindow;
                 }
-                if(i < tabs - 1) ImGui.SameLine();
+                if (i < tabs - 1) ImGui.SameLine();
             }
-            ImGui.NewLine();
+        }
 
-            SetMouseVisible(ImGui.IsWindowHovered());
-            currentWindowTab?.Invoke(); ImGui.NewLine();
+        private void DrawChunkInspector() {
+            ImGui.Begin("Chunk Inspector");
+            ImGui.Text("Chunks");
 
-            if (ImGui.Button("Generate")) terrainGenerator.Generate(); ImGui.SameLine();
-            ImGui.Checkbox("Auto Generate", ref terrainGenerator.autoGenerate); ImGui.NewLine();
-
+            ImGui.ListBox(string.Empty, ref currentSelectedChunk, chunkStrings, terrainGenerator.chunkCounter);
+            ImGui.SameLine();
+            
+            ImGui.BeginGroup();
+            ImGui.Button("Load"); ImGui.SameLine();
+            ImGui.Button("Unload");
+            
+            if(ImGui.Button("Snap")) {
+                
+                //Vector2 snapPosition = terrainGenerator.GetGridTilePosition(width / 2, 0, 16 * tileSize)
+                //CameraController.Instance.TeleportTo()
+            }
+            ImGui.EndGroup();
+            
             ImGui.End();
-
-            DrawGameInfoWindow();
-
-            ImGui.End();
-            guiRenderer.AfterLayout();
         }
 
         private void DrawGameInfoWindow() {
@@ -84,6 +126,21 @@ namespace MonoTerrain.Scripts {
             if (ImGui.Button("Reset Mouse Postion")) {
                 Vector2 center = GetCenterPoint();
                 Mouse.SetPosition((int)center.X, (int)center.Y);
+            }
+
+            if (ImGui.Button("Open Chunk Inspector"))
+                drawChunkWindow = !drawChunkWindow;
+            
+            ImGui.NewLine();
+            ImGui.Text("Teleport Camera");
+
+            ImGui.PushItemWidth(75);
+            ImGui.InputInt("x", ref xCamTeleportPosition, 0); ImGui.SameLine();
+            ImGui.InputInt("y", ref yCamTeleportPosition, 0); ImGui.SameLine();
+            
+            if (ImGui.Button("Teleport")) {
+                Vector2 position = TerrainGenerator.GetGridTilePosition(xCamTeleportPosition, yCamTeleportPosition, TerrainGenerator.tileSize);
+                CameraController.Instance.TeleportTo(position);
             }
         }
 
@@ -118,7 +175,7 @@ namespace MonoTerrain.Scripts {
             public string windowName;
             public Action drawWindow;
 
-            public WindowTab(string windowName, Action windowToDraw) {
+            public WindowTab(string windowName, Action windowToDraw, bool drawOnNewLine = false) {
                 this.windowName = windowName;
                 drawWindow = windowToDraw;
             }

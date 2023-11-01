@@ -51,8 +51,9 @@ namespace MonoTerrain.Scripts.Gameplay {
             Camera.Position = Vector2.Lerp(Camera.Position, Camera.Position + newPosition, 5 * gameTime.GetElapsedSeconds());
         }
 
-    
-
+        public void TeleportTo(Vector2 position) {
+            Camera.Position = position;
+        }
 
         private Vector2 GetMovementDirection(KeyboardState keyboardState) {
             var movementDirection = Vector2.Zero;

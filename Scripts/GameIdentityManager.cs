@@ -3,6 +3,8 @@ using MonoTerrain.Scripts.Gameplay;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Linq;
+using System.Security.Principal;
+using System;
 
 namespace MonoTerrain.Scripts {
     public class GameIdentityManager {
@@ -20,20 +22,26 @@ namespace MonoTerrain.Scripts {
             Instance = this;
         }
 
-        public void InstantiateIdentity(GameIdentity gameIdentity, Vector2 position) {
-            if (!ActiveGameIdentities.ContainsKey(gameIdentity.UniqueId)) {
+        public void InstantiateIdentity(GameIdentity gameIdentity, Vector2 position, bool skipSelfCheck = false) {
+            if (skipSelfCheck) {
                 gameIdentity.Transform.position = position;
-                ActiveGameIdentities.Add(gameIdentity.UniqueId, gameIdentity);
+                ActiveGameIdentities.Add(gameIdentity.IdentityId, gameIdentity);
+                UpdateGameIdentitiesOrder(gameIdentity);
+                return;
+            }
+            if (!ActiveGameIdentities.ContainsKey(gameIdentity.IdentityId)) {
+                gameIdentity.Transform.position = position;
+                ActiveGameIdentities.Add(gameIdentity.IdentityId, gameIdentity);
                 UpdateGameIdentitiesOrder(gameIdentity);
             }
             else {
-                string message = $"GameIdentity {gameIdentity.Name}[{gameIdentity.UniqueId}] is already instantiated";
+                string message = $"GameIdentity {gameIdentity.Name}[{gameIdentity.IdentityId}] is already instantiated";
                 GameHelper.ExitWithDebugMessage(message);
             }
         }
         
         public void DestroyIdentity(GameIdentity gameIdentity, bool skipSelfCheck = false) 
-            => DestroyIdentity(gameIdentity.UniqueId, skipSelfCheck);
+            => DestroyIdentity(gameIdentity.IdentityId, skipSelfCheck);
        
         public void DestroyIdentity(int identityId, bool skipSelfCheck = false) {
             if (skipSelfCheck) {
@@ -47,12 +55,10 @@ namespace MonoTerrain.Scripts {
             }
             else {
                 GameIdentity identity = ActiveGameIdentities[identityId];
-                string message = $"GameIdentity {identity.Name}[{identity.UniqueId}] cannot be destroyed because it does not exist";
+                string message = $"GameIdentity {identity.Name}[{identity.IdentityId}] cannot be destroyed because it does not exist";
                 GameHelper.ExitWithDebugMessage(message);
             }
         }
-
-        public bool IsUniqueIdentity(int identityId) => !ActiveGameIdentities.ContainsKey(identityId);
 
         private void UpdateGameIdentitiesOrder(GameIdentity gameIdentity) { //TODO: too expensive, needs rework
             if (gameIdentity.RenderOrder == -1) return;
@@ -79,10 +85,12 @@ namespace MonoTerrain.Scripts {
 
         private void DrawIdentity(SpriteBatch batch, GameIdentity gameIdentity) {
             Vector2 position = new Vector2(gameIdentity.Transform.position.X, -gameIdentity.Transform.position.Y);
-
+            
             batch.Draw(gameIdentity.Visual.targetTexture, position + positionOffset, null, 
             gameIdentity.Visual.textureColor, gameIdentity.Transform.rotation, gameIdentity.Transform.originOffset,
             gameIdentity.Transform.scale, SpriteEffects.None, 0);
         }
+
+        public int GetId() => ActiveGameIdentities.Count + 1;
     }
 }

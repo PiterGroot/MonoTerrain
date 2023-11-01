@@ -11,9 +11,9 @@ namespace MonoTerrain.Scripts.Gameplay {
         private void OnUpdate(GameTime gameTime) {
             if (GameController.Instance.MouseState.LeftButton == ButtonState.Pressed) {
                 Vector2 mouseGridPosition = TerrainGenerator.GetGridMousePosition();
-                if (TerrainGenerator.tiles.ContainsKey(mouseGridPosition)) {
-                    GameIdentityManager.Instance.DestroyIdentity(TerrainGenerator.tiles[mouseGridPosition].UniqueId, true);
-                }
+                /*if (TerrainGenerator.tiles.ContainsKey(mouseGridPosition)) {
+                    GameIdentityManager.Instance.DestroyIdentity(TerrainGenerator.tiles[mouseGridPosition].IdentityId, true);
+                }*/
             }
         }
     }

@@ -1,15 +1,12 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace MonoTerrain.Scripts {
     public struct GameIdentity{
         public GameIdentity(string identityName = "", string texture = "", int renderOrder = 0, bool centeredOrigin = true) {
             Name = identityName == string.Empty ? "NewGameIdentity" : identityName;
-
-            while (true) {
-                UniqueId = GameHelper.RandomHandler.GetRandomIntNumber(0, 99999);
-                if (GameIdentityManager.Instance.IsUniqueIdentity(UniqueId)) break;
-            }
+            IdentityId = GameIdentityManager.Instance.GetId();
 
             Texture2D loadedTexture = null;
             try {
@@ -29,7 +26,7 @@ namespace MonoTerrain.Scripts {
         }
 
         public string Name { get; set; }
-        public int UniqueId { get; set; }
+        public int IdentityId { get; set; }
 
         public bool Active { get; set; }
         public int RenderOrder { get; set; }
