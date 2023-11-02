@@ -3,8 +3,6 @@ using MonoTerrain.Scripts.Gameplay;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Linq;
-using System.Security.Principal;
-using System;
 
 namespace MonoTerrain.Scripts {
     public class GameIdentityManager {
@@ -12,6 +10,7 @@ namespace MonoTerrain.Scripts {
         private Viewport viewport;
         private Vector2 positionOffset;
 
+        public int CreatedIdentities { get; set; }
         private Dictionary<int, GameIdentity> ActiveGameIdentities { get; set; }
         public static GameIdentityManager Instance;
 
@@ -78,19 +77,21 @@ namespace MonoTerrain.Scripts {
             foreach (GameIdentity identity in ActiveGameIdentities.Values) {
                 if (!identity.Active) continue;
                 DrawIdentity(spriteBatch, identity);
-            }
 
+                int l = identity.Children.Count;
+                for (int i = 0; i < l; i++) {
+                    if (!identity.Children[i].Active) continue;
+                    DrawIdentity(spriteBatch, identity.Children[i]);
+                }
+            }
             spriteBatch.End();
         }
 
         private void DrawIdentity(SpriteBatch batch, GameIdentity gameIdentity) {
             Vector2 position = new Vector2(gameIdentity.Transform.position.X, -gameIdentity.Transform.position.Y);
-            
             batch.Draw(gameIdentity.Visual.targetTexture, position + positionOffset, null, 
             gameIdentity.Visual.textureColor, gameIdentity.Transform.rotation, gameIdentity.Transform.originOffset,
             gameIdentity.Transform.scale, SpriteEffects.None, 0);
         }
-
-        public int GetId() => ActiveGameIdentities.Count + 1;
     }
 }

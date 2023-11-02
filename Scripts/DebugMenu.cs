@@ -39,8 +39,7 @@ namespace MonoTerrain.Scripts {
         public void DrawDebugWindow(GameTime gameTime) {
             ImGuiRenderer guiRenderer = GameController.Instance.guiRenderer;
             guiRenderer.BeforeLayout(gameTime);
-            terrainGenerator.AutoUpdate(gameTime);
-
+            terrainGenerator.AutoUpdate();
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(275, 500));
             ImGui.Begin("MonoTerrain - Terrain Tool", ImGuiWindowFlags.NoResize);
 
@@ -49,6 +48,7 @@ namespace MonoTerrain.Scripts {
 
             currentWindowTab?.Invoke(); ImGui.NewLine();
 
+            ImGui.Value("je", 1);
             if (ImGui.Button("Generate")) terrainGenerator.Generate(); ImGui.SameLine();
             ImGui.Checkbox("Auto Generate", ref terrainGenerator.autoGenerate); ImGui.NewLine();
 
@@ -83,10 +83,12 @@ namespace MonoTerrain.Scripts {
             ImGui.SameLine();
             
             ImGui.BeginGroup();
-            ImGui.Button("Load"); ImGui.SameLine();
-            ImGui.Button("Unload");
-            
-            if(ImGui.Button("Snap")) {
+            if (ImGui.Button("Load")) TerrainGenerator.chunkContainers[currentSelectedChunk].Active = true;
+            ImGui.SameLine();
+            if (ImGui.Button("Unload")) TerrainGenerator.chunkContainers[currentSelectedChunk].Active = false;
+
+
+            if (ImGui.Button("Snap")) {
                 
                 //Vector2 snapPosition = terrainGenerator.GetGridTilePosition(width / 2, 0, 16 * tileSize)
                 //CameraController.Instance.TeleportTo()

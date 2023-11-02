@@ -1,12 +1,19 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using System;
 
 namespace MonoTerrain.Scripts {
-    public struct GameIdentity{
+    public class GameIdentity{
+        public GameIdentity(string identityName, Vector2 position, bool centeredOrigin = true) {
+            GameIdentity identity = new GameIdentity(identityName, centeredOrigin: centeredOrigin);
+            identity.Transform.position = position;
+        }
+
         public GameIdentity(string identityName = "", string texture = "", int renderOrder = 0, bool centeredOrigin = true) {
             Name = identityName == string.Empty ? "NewGameIdentity" : identityName;
-            IdentityId = GameIdentityManager.Instance.GetId();
+            
+            GameIdentityManager.Instance.CreatedIdentities++;
+            IdentityId = GameIdentityManager.Instance.CreatedIdentities;
 
             Texture2D loadedTexture = null;
             try {
@@ -16,6 +23,7 @@ namespace MonoTerrain.Scripts {
                 loadedTexture = GameController.Instance.Content.Load<Texture2D>("null");
             }
 
+            Children = new List<GameIdentity>();
             Transform = new Transform();
             Visual = new GameVisual(loadedTexture, Color.White);
 
@@ -33,6 +41,7 @@ namespace MonoTerrain.Scripts {
 
         public Transform Transform { get; set; }
         public GameVisual Visual { get; set; }
+        public List<GameIdentity> Children { get; set; }
     }
 
     public class GameVisual {
