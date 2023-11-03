@@ -48,7 +48,6 @@ namespace MonoTerrain.Scripts {
 
             currentWindowTab?.Invoke(); ImGui.NewLine();
 
-            ImGui.Value("je", 1);
             if (ImGui.Button("Generate")) terrainGenerator.Generate(); ImGui.SameLine();
             ImGui.Checkbox("Auto Generate", ref terrainGenerator.autoGenerate); ImGui.NewLine();
 
@@ -89,9 +88,14 @@ namespace MonoTerrain.Scripts {
 
 
             if (ImGui.Button("Snap")) {
+
+                float xPos = (currentSelectedChunk * TerrainGenerator.chunkSize) + TerrainGenerator.chunkSize * .5f;
+                float yPos = terrainGenerator.height;
                 
-                //Vector2 snapPosition = terrainGenerator.GetGridTilePosition(width / 2, 0, 16 * tileSize)
-                //CameraController.Instance.TeleportTo()
+                Vector2 teleportPosition = TerrainGenerator.GetGridTilePosition(xPos, 0, 16 * 1);
+                teleportPosition.Y = -yPos;
+
+                CameraController.Instance.TeleportTo(teleportPosition);
             }
             ImGui.EndGroup();
             
@@ -132,18 +136,6 @@ namespace MonoTerrain.Scripts {
 
             if (ImGui.Button("Open Chunk Inspector"))
                 drawChunkWindow = !drawChunkWindow;
-            
-            ImGui.NewLine();
-            ImGui.Text("Teleport Camera");
-
-            ImGui.PushItemWidth(75);
-            ImGui.InputInt("x", ref xCamTeleportPosition, 0); ImGui.SameLine();
-            ImGui.InputInt("y", ref yCamTeleportPosition, 0); ImGui.SameLine();
-            
-            if (ImGui.Button("Teleport")) {
-                Vector2 position = TerrainGenerator.GetGridTilePosition(xCamTeleportPosition, yCamTeleportPosition, TerrainGenerator.tileSize);
-                CameraController.Instance.TeleportTo(position);
-            }
         }
 
         private void ShowDecorationTab() {

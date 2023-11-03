@@ -88,6 +88,8 @@ namespace MonoTerrain.Scripts {
         }
 
         private void DrawIdentity(SpriteBatch batch, GameIdentity gameIdentity) {
+            if (gameIdentity.Visual == null) return;
+
             Vector2 position = new Vector2(gameIdentity.Transform.position.X, -gameIdentity.Transform.position.Y);
             batch.Draw(gameIdentity.Visual.targetTexture, position + positionOffset, null, 
             gameIdentity.Visual.textureColor, gameIdentity.Transform.rotation, gameIdentity.Transform.originOffset,

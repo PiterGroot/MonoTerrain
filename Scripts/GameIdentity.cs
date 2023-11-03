@@ -19,15 +19,15 @@ namespace MonoTerrain.Scripts {
             try {
                 loadedTexture = GameController.Instance.Content.Load<Texture2D>(texture);
             }
-            catch {
-                loadedTexture = GameController.Instance.Content.Load<Texture2D>("null");
-            }
+            catch { }
 
             Children = new List<GameIdentity>();
             Transform = new Transform();
-            Visual = new GameVisual(loadedTexture, Color.White);
 
-            if(centeredOrigin) Transform.originOffset = new Vector2(loadedTexture.Width / 2f, loadedTexture.Height / 2f);
+            if (loadedTexture != null) { 
+                Visual = new GameVisual(loadedTexture, Color.White);
+                if (centeredOrigin) Transform.originOffset = new Vector2(loadedTexture.Width / 2f, loadedTexture.Height / 2f);
+            }
 
             RenderOrder = renderOrder;
             Active = true;
