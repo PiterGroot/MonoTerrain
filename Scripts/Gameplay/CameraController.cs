@@ -43,17 +43,19 @@ namespace MonoTerrain.Scripts.Gameplay {
             int previousMouseWheelValue = currentMouseWheelValue;
             currentMouseWheelValue = mouseState.ScrollWheelValue;
 
-            /*if (currentMouseWheelValue > previousMouseWheelValue) {
-                //Camera.ZoomIn(1 / 12f * Camera.Zoom * zoomSpeed);
+           /* if (currentMouseWheelValue > previousMouseWheelValue) {
+                Camera.ZoomIn(1 / 12f * Camera.Zoom * zoomSpeed);
             }
             if (currentMouseWheelValue < previousMouseWheelValue) {
-                //Camera.ZoomOut(1 / 12f * Camera.Zoom * zoomSpeed);
+                Camera.ZoomOut(1 / 12f * Camera.Zoom * zoomSpeed);
             }*/
-           
-            moveDirection = Vector2.Lerp(moveDirection, GetMovementDirection(keyboardState), movementLerpSpeed * gameTime.GetElapsedSeconds());
+
+            Vector2 rawDirection = GetMovementDirection(keyboardState);
+            moveDirection = Vector2.Lerp(moveDirection, rawDirection, movementLerpSpeed * gameTime.GetElapsedSeconds());
             Camera.Position += moveDirection * currentMovementSpeed * gameTime.GetElapsedSeconds();
 
-            onMovePosition?.Invoke(Camera.Position);
+            if(rawDirection != Vector2.Zero)
+                onMovePosition?.Invoke(Camera.Position);
             teleportTween.Update(gameTime.GetElapsedSeconds());
         }
 

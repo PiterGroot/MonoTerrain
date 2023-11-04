@@ -8,10 +8,11 @@ namespace MonoTerrain.Scripts.Gameplay {
         private int[,] map;
         private OpenSimplexNoise simplexNoise;
         private ChunkManager chunkManager;
+        public Action onTerrainGenerated;
 
         public static readonly float tileSize = 1;
         public static readonly int tileTextureSize = 16;
-        public static readonly int chunkSize = 100;
+        public static readonly int chunkSize = 150;
 
         private readonly bool generateOnAwake = true;
         private readonly bool randomizeConfig = false;
@@ -31,7 +32,7 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         public int seed = 12345;
 
-        public int width = 900;
+        public int width = 1650;
         public int height = 350;
        
         private readonly int heightReduction = 10;
@@ -79,11 +80,14 @@ namespace MonoTerrain.Scripts.Gameplay {
             PopulateMap();
 
             foreach (GameIdentity identity in ChunkManager.chunkContainers) {
+                identity.Active = false;
                 GameIdentityManager.Instance.InstantiateIdentity(identity, identity.Transform.position, true);
             }
 
             if (resetCameraPosition) 
                 CameraController.Instance.Camera.Position = GetGridTilePosition(width / 2, 0, 16 * tileSize);
+
+            onTerrainGenerated?.Invoke();
         }
 
         private int[,] InitializeMap(int width, int height) {
