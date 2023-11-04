@@ -5,14 +5,10 @@ using System;
 
 namespace MonoTerrain.Scripts.Gameplay {
     public class TerrainGenerator {
-
-        public int chunkCounter = 0;
-        public static List<GameIdentity> chunkContainers = new List<GameIdentity>();
-        public static Dictionary<int, List<Tile>> chunks = new Dictionary<int, List<Tile>>();
-
         private int[,] map;
         private OpenSimplexNoise simplexNoise;
-        
+        private ChunkManager chunkManager;
+
         public static readonly float tileSize = 1;
         public static readonly int tileTextureSize = 16;
         public static readonly int chunkSize = 100;
@@ -64,7 +60,7 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         public void Generate() {
             map = null;
-            chunks.Clear();
+            chunkManager = new ChunkManager(this);
 
             if (randomSeed) seed = RandomHandler.GetRandomIntNumber(0, 99999);
             if (randomizeConfig) {
@@ -82,8 +78,8 @@ namespace MonoTerrain.Scripts.Gameplay {
             
             PopulateMap();
 
-            foreach (GameIdentity identity in chunkContainers) {
-                GameIdentityManager.Instance.InstantiateIdentity(identity, Vector2.Zero, true);
+            foreach (GameIdentity identity in ChunkManager.chunkContainers) {
+                GameIdentityManager.Instance.InstantiateIdentity(identity, identity.Transform.position, true);
             }
 
             if (resetCameraPosition) 
@@ -96,22 +92,17 @@ namespace MonoTerrain.Scripts.Gameplay {
 
             return map;
         }
+
         private void PopulateMap() {
             for (int x = 0; x < map.GetUpperBound(0); x++) {
-                if (x % chunkSize == 0) CreateChunkContainer();
+                if (x % chunkSize == 0) chunkManager.CreateChunkContainer();
                 for (int y = 0; y < map.GetUpperBound(1); y++) {
                     int tileKey = map[x, y];
                     if (tileKey == 0) continue; //ignore air tile
                     
-                    tileLibrary[map[x, y]].InstantiateTile(x, y, tileTextureSize, chunkCounter);
+                    tileLibrary[map[x, y]].InstantiateTile(x, y, tileTextureSize, ChunkManager.ChunkCounter);
                 }
             }
-        }
-
-        private void CreateChunkContainer() {
-            chunkCounter++;
-            chunks.Add(chunkCounter, new List<Tile>());
-            chunkContainers.Add(new GameIdentity($"Chunk {chunkCounter}"));
         }
 
         private int[,] ApplyNoisePass(int[,] map, int octaves, float persistence, float lacunarity, float smoothness) {
@@ -175,8 +166,8 @@ namespace MonoTerrain.Scripts.Gameplay {
                 tile.Transform.SetScale(Vector2.One * tileSize);
                 tile.Visual.textureColor = tileColor;
 
-                chunks[chunk].Add(new Tile(tilePosition, tile));
-                chunkContainers[chunk - 1].Children.Add(tile);
+                ChunkManager.chunks[chunk].Add(new Tile(tilePosition, tile));
+                ChunkManager.chunkContainers[chunk - 1].Children.Add(tile);
             }
         }
 

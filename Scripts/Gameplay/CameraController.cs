@@ -2,20 +2,26 @@
 using MonoGame.Extended.ViewportAdapters;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Tweening;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
+using System;
 
 namespace MonoTerrain.Scripts.Gameplay {
     
     public class CameraController {
-        private int currentMouseWheelValue;
+        private readonly Tweener teleportTween = new Tweener();
 
+        private int currentMouseWheelValue;
         private float startZoomValue = 1f;
         private int zoomSpeed = 3;
 
-        public float MovementSpeed = 5;
+        private Vector2 moveDirection;
+        private float movementLerpSpeed = 10;
+        public float MovementSpeed = 10;
+
         public OrthographicCamera Camera { get; private set; }
+        public Action<Vector2> onMovePosition;
 
         public static CameraController Instance;
         public CameraController(GameWindow window, GraphicsDevice graphicsDevice, Viewport viewport) {
@@ -37,22 +43,28 @@ namespace MonoTerrain.Scripts.Gameplay {
             int previousMouseWheelValue = currentMouseWheelValue;
             currentMouseWheelValue = mouseState.ScrollWheelValue;
 
-            if (currentMouseWheelValue > previousMouseWheelValue) {
+            /*if (currentMouseWheelValue > previousMouseWheelValue) {
                 //Camera.ZoomIn(1 / 12f * Camera.Zoom * zoomSpeed);
             }
             if (currentMouseWheelValue < previousMouseWheelValue) {
                 //Camera.ZoomOut(1 / 12f * Camera.Zoom * zoomSpeed);
-            }
+            }*/
+           
+            moveDirection = Vector2.Lerp(moveDirection, GetMovementDirection(keyboardState), movementLerpSpeed * gameTime.GetElapsedSeconds());
+            Camera.Position += moveDirection * currentMovementSpeed * gameTime.GetElapsedSeconds();
 
-
-            Camera.Position += GetMovementDirection(keyboardState) * currentMovementSpeed * gameTime.GetElapsedSeconds();
-
-            Vector2 newPosition = (GetMovementDirection(keyboardState) * currentMovementSpeed * gameTime.GetElapsedSeconds());
-            Camera.Position = Vector2.Lerp(Camera.Position, Camera.Position + newPosition, 5 * gameTime.GetElapsedSeconds());
+            onMovePosition?.Invoke(Camera.Position);
+            teleportTween.Update(gameTime.GetElapsedSeconds());
         }
 
-        public void TeleportTo(Vector2 position) {
-            Camera.Position = position;
+        public void TeleportTo(Vector2 teleportPosition, bool instant = false) {
+            if(instant)
+                Camera.Position = teleportPosition;
+            else {
+                teleportTween.CancelAndCompleteAll();
+                teleportTween.TweenTo(Camera, transform => transform.Position, teleportPosition, .35f, 0)
+                    .Easing(EasingFunctions.CircleInOut);
+            }
         }
 
         private Vector2 GetMovementDirection(KeyboardState keyboardState) {

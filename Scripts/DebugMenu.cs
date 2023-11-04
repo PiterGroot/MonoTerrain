@@ -19,9 +19,6 @@ namespace MonoTerrain.Scripts {
         private int currentSelectedChunk;
         private string[] chunkStrings;
 
-        private int xCamTeleportPosition;
-        private int yCamTeleportPosition;
-
         public DebugMenu(TerrainGenerator terrainGenerator) {
             this.terrainGenerator = terrainGenerator;
             windowTabs = new List<WindowTab>() {
@@ -30,7 +27,7 @@ namespace MonoTerrain.Scripts {
             };
             currentWindowTab += windowTabs[0].drawWindow;
             
-            chunkStrings = new string[terrainGenerator.chunkCounter];
+            chunkStrings = new string[ChunkManager.ChunkCounter];
             for (int i = 0; i < chunkStrings.Length; i++) {
                 chunkStrings[i] = $"Chunk {i}";
             }
@@ -55,7 +52,6 @@ namespace MonoTerrain.Scripts {
             
             ImGui.End();
             DrawGameInfoWindow();
-            ImGui.End();
 
             if (drawChunkWindow)
                 DrawChunkInspector();
@@ -78,27 +74,18 @@ namespace MonoTerrain.Scripts {
             ImGui.Begin("Chunk Inspector");
             ImGui.Text("Chunks");
 
-            ImGui.ListBox(string.Empty, ref currentSelectedChunk, chunkStrings, terrainGenerator.chunkCounter);
+            ImGui.ListBox(string.Empty, ref currentSelectedChunk, chunkStrings, ChunkManager.ChunkCounter);
             ImGui.SameLine();
             
             ImGui.BeginGroup();
-            if (ImGui.Button("Load")) TerrainGenerator.chunkContainers[currentSelectedChunk].Active = true;
+            if (ImGui.Button("Load")) ChunkManager.chunkContainers[currentSelectedChunk].Active = true;
             ImGui.SameLine();
-            if (ImGui.Button("Unload")) TerrainGenerator.chunkContainers[currentSelectedChunk].Active = false;
+            if (ImGui.Button("Unload")) ChunkManager.chunkContainers[currentSelectedChunk].Active = false;
 
-
-            if (ImGui.Button("Snap")) {
-
-                float xPos = (currentSelectedChunk * TerrainGenerator.chunkSize) + TerrainGenerator.chunkSize * .5f;
-                float yPos = terrainGenerator.height;
-                
-                Vector2 teleportPosition = TerrainGenerator.GetGridTilePosition(xPos, 0, 16 * 1);
-                teleportPosition.Y = -yPos;
-
-                CameraController.Instance.TeleportTo(teleportPosition);
-            }
-            ImGui.EndGroup();
+            if (ImGui.Button("Snap")) 
+                CameraController.Instance.TeleportTo(ChunkManager.chunkContainers[currentSelectedChunk].Transform.position);
             
+            ImGui.EndGroup();
             ImGui.End();
         }
 
@@ -136,6 +123,7 @@ namespace MonoTerrain.Scripts {
 
             if (ImGui.Button("Open Chunk Inspector"))
                 drawChunkWindow = !drawChunkWindow;
+            ImGui.End();
         }
 
         private void ShowDecorationTab() {
