@@ -60,9 +60,10 @@ namespace MonoTerrain.Scripts
 
             Instance = this;
 
-            new CameraController(Window, GraphicsDevice, Viewport);
-            new GameIdentityManager();
-            new WorldInteractor(this);
+            _ = new CameraController(Window, GraphicsDevice, Viewport);
+            _ = new GameIdentityManager();
+            new GPUInstanceTest();
+            _ = new WorldInteractor(this);
 
             TerrainGenerator = new TerrainGenerator();
             debugMenu = new DebugMenu(TerrainGenerator);
@@ -80,13 +81,13 @@ namespace MonoTerrain.Scripts
         {
             KeyboardState = Keyboard.GetState();
             MouseState = Mouse.GetState();
-            if (KeyboardState.IsKeyDown(Keys.Back))
+            if (KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
 
             CameraController.Instance.UpdateCamera(gameTime);
             GameIdentityManager.Instance.DrawGameIdentities(spriteBatch, GraphicsDevice);
             debugMenu.DrawDebugWindow(gameTime);
-            
+
             Vector2 position = CameraController.Instance.Camera.ScreenToWorld(MouseState.Position.ToVector2() - GetCenterPoint());
             position.Y *= -1;
             mouseWorldPos = position;

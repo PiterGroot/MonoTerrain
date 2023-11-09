@@ -27,7 +27,7 @@ namespace MonoTerrain.Scripts {
             };
             currentWindowTab += windowTabs[0].drawWindow;
             
-            chunkStrings = new string[ChunkManager.ChunkCounter];
+            chunkStrings = new string[ChunkManager.instance.ChunkCounter];
             for (int i = 0; i < chunkStrings.Length; i++) {
                 chunkStrings[i] = $"Chunk {i}";
             }
@@ -74,16 +74,16 @@ namespace MonoTerrain.Scripts {
             ImGui.Begin("Chunk Inspector");
             ImGui.Text("Chunks");
 
-            ImGui.ListBox(string.Empty, ref currentSelectedChunk, chunkStrings, ChunkManager.ChunkCounter);
+            ImGui.ListBox(string.Empty, ref currentSelectedChunk, chunkStrings, ChunkManager.instance.ChunkCounter);
             ImGui.SameLine();
             
             ImGui.BeginGroup();
-            if (ImGui.Button("Load")) ChunkManager.chunkContainers[currentSelectedChunk].Active = true;
+            if (ImGui.Button("Load")) ChunkManager.instance.chunkContainers[currentSelectedChunk].Active = true;
             ImGui.SameLine();
-            if (ImGui.Button("Unload")) ChunkManager.chunkContainers[currentSelectedChunk].Active = false;
+            if (ImGui.Button("Unload")) ChunkManager.instance.chunkContainers[currentSelectedChunk].Active = false;
 
             if (ImGui.Button("Snap")) 
-                CameraController.Instance.TeleportTo(ChunkManager.chunkContainers[currentSelectedChunk].Transform.position);
+                CameraController.Instance.TeleportTo(ChunkManager.instance.chunkContainers[currentSelectedChunk].Transform.position);
             
             ImGui.EndGroup();
             ImGui.End();

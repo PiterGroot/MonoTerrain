@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System;
+using System.Diagnostics;
 
 namespace MonoTerrain.Scripts.Gameplay {
     public class ChunkManager {
 
         private int chunkClampValue;
-        public static int ChunkCounter { get; private set; }
-        public static List<GameIdentity> chunkContainers = new List<GameIdentity>();
-        public static Dictionary<int, List<TerrainGenerator.Tile>> chunks = new Dictionary<int, List<TerrainGenerator.Tile>>();
+        public int ChunkCounter { get; private set; }
+        public List<GameIdentity> chunkContainers = new List<GameIdentity>();
+        public Dictionary<int, List<TerrainGenerator.Tile>> chunks = new Dictionary<int, List<TerrainGenerator.Tile>>();
 
         public TerrainGenerator terrainGenerator;
 
-        public ChunkManager(TerrainGenerator terrainGenerator) { 
+        public static ChunkManager instance;
+        public ChunkManager(TerrainGenerator terrainGenerator) {
+            instance = this;
             this.terrainGenerator = terrainGenerator;
             CameraController.Instance.onMovePosition += HandleMoveCamera;
             terrainGenerator.onTerrainGenerated += HandleTerrainGenerated;
