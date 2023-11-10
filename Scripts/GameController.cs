@@ -62,7 +62,6 @@ namespace MonoTerrain.Scripts
 
             _ = new CameraController(Window, GraphicsDevice, Viewport);
             _ = new GameIdentityManager();
-            new GPUInstanceTest();
             _ = new WorldInteractor(this);
 
             TerrainGenerator = new TerrainGenerator();
@@ -88,7 +87,7 @@ namespace MonoTerrain.Scripts
             GameIdentityManager.Instance.DrawGameIdentities(spriteBatch, GraphicsDevice);
             debugMenu.DrawDebugWindow(gameTime);
 
-            Vector2 position = CameraController.Instance.Camera.ScreenToWorld(MouseState.Position.ToVector2() - GetCenterPoint());
+            Vector2 position = CameraController.Instance.Camera.ScreenToWorld(MouseState.Position.ToVector2() - CachedCenterPoint);
             position.Y *= -1;
             mouseWorldPos = position;
 

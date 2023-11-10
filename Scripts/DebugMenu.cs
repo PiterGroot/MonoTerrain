@@ -36,7 +36,6 @@ namespace MonoTerrain.Scripts {
         public void DrawDebugWindow(GameTime gameTime) {
             ImGuiRenderer guiRenderer = GameController.Instance.guiRenderer;
             guiRenderer.BeforeLayout(gameTime);
-            terrainGenerator.AutoUpdate();
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(275, 500));
             ImGui.Begin("MonoTerrain - Terrain Tool", ImGuiWindowFlags.NoResize);
 
@@ -45,8 +44,7 @@ namespace MonoTerrain.Scripts {
 
             currentWindowTab?.Invoke(); ImGui.NewLine();
 
-            if (ImGui.Button("Generate")) terrainGenerator.Generate(); ImGui.SameLine();
-            ImGui.Checkbox("Auto Generate", ref terrainGenerator.autoGenerate); ImGui.NewLine();
+            if (ImGui.Button("Generate")) terrainGenerator.Generate(false); ImGui.SameLine();
 
             SetMouseVisible(ImGui.IsWindowHovered() || ImGui.IsAnyItemHovered());
             

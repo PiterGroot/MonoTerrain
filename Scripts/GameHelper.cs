@@ -17,6 +17,8 @@ namespace MonoTerrain.Scripts
         public static SpriteBatch spriteBatch { get; set; }
         public static GraphicsDevice GraphicsDevice { get; set; }
 
+        public static Vector2 CachedCenterPoint { get; private set; }
+
         private static Viewport viewport;
         private static GameController gameController;
 
@@ -31,6 +33,7 @@ namespace MonoTerrain.Scripts
                 GameController.OnUpdate += OnUpdate;
                 TextDrawer.defaultSpriteFont = gameController.Content.Load<SpriteFont>("font");
                 viewport = value.Viewport;
+                CachedCenterPoint = new Vector2(viewport.Width / 2, viewport.Height / 2);
             }
         }
 

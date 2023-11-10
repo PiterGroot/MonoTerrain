@@ -1,8 +1,8 @@
 ﻿using static MonoTerrain.Scripts.GameHelper;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoTerrain.Scripts.Gameplay {
     public class TerrainGenerator {
@@ -19,8 +19,7 @@ namespace MonoTerrain.Scripts.Gameplay {
         private readonly bool randomizeConfig = false;
         private readonly bool randomSeed = false;
 
-        public bool autoGenerate;
-        public bool resetCameraPosition = true;
+        public bool resetCameraPosition;
 
         public Vector2 seedMinMax = new Vector2(1, 999999);
 
@@ -53,14 +52,10 @@ namespace MonoTerrain.Scripts.Gameplay {
         };
 
         public TerrainGenerator() {
-            if (generateOnAwake) Generate();
+            if (generateOnAwake) Generate(true);
         }
 
-        public void AutoUpdate() {
-            if(autoGenerate) Generate();
-        }
-
-        public void Generate() {
+        public void Generate(bool isSetup) {
             map = null;
 
             if(chunkManager != null) {
@@ -68,7 +63,6 @@ namespace MonoTerrain.Scripts.Gameplay {
                     GameIdentityManager.Instance.DestroyIdentity(identity);
                 }
             }
-
             chunkManager = new ChunkManager(this);
 
             if (randomSeed) seed = RandomHandler.GetRandomIntNumber(0, 99999);
@@ -92,7 +86,7 @@ namespace MonoTerrain.Scripts.Gameplay {
                 GameIdentityManager.Instance.InstantiateIdentity(identity, identity.Transform.position, true);
             }
 
-            if (resetCameraPosition) 
+            if (resetCameraPosition || isSetup) 
                 CameraController.Instance.Camera.Position = GetGridTilePosition(width / 2, 0, 16 * tileSize);
 
             onTerrainGenerated?.Invoke();
