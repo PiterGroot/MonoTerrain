@@ -1,14 +1,15 @@
-﻿using static MonoTerrain.Scripts.GameHelper;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System;
-using System.Diagnostics;
 
 namespace MonoTerrain.Scripts.Gameplay {
     public class ChunkManager {
 
         private int chunkClampValue;
+        
         public int ChunkCounter { get; private set; }
+        public bool autoToggleChunks = true;
+
         public List<GameIdentity> chunkContainers = new List<GameIdentity>();
         public Dictionary<int, List<TerrainGenerator.Tile>> chunks = new Dictionary<int, List<TerrainGenerator.Tile>>();
 
@@ -20,6 +21,13 @@ namespace MonoTerrain.Scripts.Gameplay {
             this.terrainGenerator = terrainGenerator;
             CameraController.Instance.onMovePosition += HandleMoveCamera;
             terrainGenerator.onTerrainGenerated += HandleTerrainGenerated;
+        }
+
+        public void SetAllChunks(bool state) {
+            int l = chunkContainers.Count;
+            for (int i = 0; i < l; i++) {
+                chunkContainers[i].Active = state;
+            }
         }
 
         public void CreateChunkContainer() {
@@ -43,6 +51,7 @@ namespace MonoTerrain.Scripts.Gameplay {
         }
 
         private void HandleMoveCamera(Vector2 newPosition) {
+            if (!autoToggleChunks) return;
             ToggleChunks(GetNearestChunkIndex(CameraController.Instance.Camera.Position));
         }
 

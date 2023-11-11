@@ -72,6 +72,10 @@ namespace MonoTerrain.Scripts {
             ImGui.Begin("Chunk Inspector");
             ImGui.Text("Chunks");
 
+            if (ImGui.Button("Load all")) ChunkManager.instance.SetAllChunks(true); ImGui.SameLine();
+            if (ImGui.Button("Unload all")) ChunkManager.instance.SetAllChunks(false); ImGui.SameLine();
+            ImGui.Checkbox("Auto (un)load chunks", ref ChunkManager.instance.autoToggleChunks);
+
             ImGui.ListBox(string.Empty, ref currentSelectedChunk, chunkStrings, ChunkManager.instance.ChunkCounter);
             ImGui.SameLine();
             
@@ -103,9 +107,12 @@ namespace MonoTerrain.Scripts {
             ImGui.TextDisabled($"X [{xPos:F2}]"); ImGui.SameLine();
             ImGui.TextDisabled($"Y [{yPos:F2}]");
 
-            ImGui.Text("Mouse pos: "); ImGui.SameLine();
+            ImGui.Text("Mouse world pos: "); ImGui.SameLine();
 
-            ImGui.TextDisabled((GameController.mouseWorldPos * CameraController.Instance.Camera.Zoom).ToString());
+            string mouseX = GameController.mouseWorldPosition.X.ToString("F2");
+            string mouseY = GameController.mouseWorldPosition.Y.ToString("F2");
+
+            ImGui.TextDisabled(mouseX + " " + mouseY);
            
             ImGui.Text("Selected tile: "); ImGui.SameLine();
             ImGui.ColorButton("Grass", new System.Numerics.Vector4(0, 255, 0, 255));

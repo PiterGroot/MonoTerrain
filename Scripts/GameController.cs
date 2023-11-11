@@ -22,7 +22,12 @@ namespace MonoTerrain.Scripts
         public MouseState MouseState { get; private set; }
         public ImGuiRenderer guiRenderer { get; private set; }
         public TerrainGenerator TerrainGenerator { get; private set; }
-        public static Vector2 mouseWorldPos { get; private set; }
+        public static Vector2 mouseScreenPosition { get; private set; }
+        public static Vector2 mouseWorldPosition { 
+            get {
+                return CameraController.Instance.Camera.ScreenToWorld(mouseScreenPosition);
+            }
+        }
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
@@ -72,7 +77,7 @@ namespace MonoTerrain.Scripts
 
         protected override void LoadContent() {
             cursor = new GameIdentity("Cursor", "crosshair", 1);
-            GameIdentityManager.Instance.InstantiateIdentity(cursor, Vector2.Zero);
+            GameIdentityManager.Instance.ignoreViewMatrixIdentities.Add(cursor);
             base.LoadContent();
         }
 
@@ -87,9 +92,9 @@ namespace MonoTerrain.Scripts
             GameIdentityManager.Instance.DrawGameIdentities(spriteBatch, GraphicsDevice);
             debugMenu.DrawDebugWindow(gameTime);
 
-            Vector2 position = CameraController.Instance.Camera.ScreenToWorld(MouseState.Position.ToVector2() - CachedCenterPoint);
+            Vector2 position = MouseState.Position.ToVector2() - CachedCenterPoint;
             position.Y *= -1;
-            mouseWorldPos = position;
+            mouseScreenPosition = position;
 
             cursor.Transform.position = position;
 

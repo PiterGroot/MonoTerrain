@@ -2,7 +2,6 @@
 using MonoTerrain.Scripts.Gameplay;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using System.Linq;
 
 namespace MonoTerrain.Scripts {
     public class GameIdentityManager {
@@ -11,7 +10,10 @@ namespace MonoTerrain.Scripts {
         private Vector2 positionOffset;
 
         public int CreatedIdentities { get; set; }
+
+        public List<GameIdentity> ignoreViewMatrixIdentities = new List<GameIdentity>();
         private Dictionary<int, GameIdentity> ActiveGameIdentities { get; set; }
+
         public static GameIdentityManager Instance;
 
         public GameIdentityManager() {
@@ -21,56 +23,23 @@ namespace MonoTerrain.Scripts {
             Instance = this;
         }
 
-        public void InstantiateIdentity(GameIdentity gameIdentity, Vector2 position, bool skipSelfCheck = false) {
-            if (skipSelfCheck) {
-                gameIdentity.Transform.position = position;
-                ActiveGameIdentities.Add(gameIdentity.IdentityId, gameIdentity);
-                UpdateGameIdentitiesOrder(gameIdentity);
-                return;
-            }
-            if (!ActiveGameIdentities.ContainsKey(gameIdentity.IdentityId)) {
-                gameIdentity.Transform.position = position;
-                ActiveGameIdentities.Add(gameIdentity.IdentityId, gameIdentity);
-                UpdateGameIdentitiesOrder(gameIdentity);
-            }
-            else {
-                string message = $"GameIdentity {gameIdentity.Name}[{gameIdentity.IdentityId}] is already instantiated";
-                GameHelper.ExitWithDebugMessage(message);
-            }
+        public void InstantiateIdentity(GameIdentity gameIdentity, Vector2 position) {
+            gameIdentity.Transform.position = position;
+            ActiveGameIdentities.Add(gameIdentity.IdentityId, gameIdentity);
         }
         
-        public void DestroyIdentity(GameIdentity gameIdentity, bool skipSelfCheck = false) 
-            => DestroyIdentity(gameIdentity.IdentityId, skipSelfCheck);
+        public void DestroyIdentity(GameIdentity gameIdentity) 
+            => DestroyIdentity(gameIdentity.IdentityId);
        
-        public void DestroyIdentity(int identityId, bool skipSelfCheck = false) {
-            if (skipSelfCheck) {
-                ActiveGameIdentities.Remove(identityId);
-                return;
-            }
-
-            if (ActiveGameIdentities.ContainsKey(identityId)) {
-                ActiveGameIdentities.Remove(identityId);
-                //UpdateGameIdentitiesOrder(ActiveGameIdentities[identityId]);
-            }
-            else {
-                GameIdentity identity = ActiveGameIdentities[identityId];
-                string message = $"GameIdentity {identity.Name}[{identity.IdentityId}] cannot be destroyed because it does not exist";
-                GameHelper.ExitWithDebugMessage(message);
-            }
-        }
-
-        private void UpdateGameIdentitiesOrder(GameIdentity gameIdentity) { //TODO: too expensive, needs rework
-            if (gameIdentity.RenderOrder == -1) return;
-            
-            List<KeyValuePair<int, GameIdentity>> identityList = ActiveGameIdentities.ToList();
-            identityList.Sort((identityA, identityB) => identityA.Value.RenderOrder.CompareTo(identityB.Value.RenderOrder));
-
-            ActiveGameIdentities = identityList.ToDictionary(key => key.Key, value => value.Value);
+        public void DestroyIdentity(int identityId) {
+            ActiveGameIdentities.Remove(identityId);
+            CreatedIdentities--;
         }
 
         public void DrawGameIdentities(SpriteBatch spriteBatch, GraphicsDevice device) {
             device.Clear(Color.CornflowerBlue);
-            
+
+            //draw identities with applied camera maxtrix
             Matrix cameraMatrix = CameraController.Instance.Camera.GetViewMatrix();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, transformMatrix: cameraMatrix);
 
@@ -83,6 +52,14 @@ namespace MonoTerrain.Scripts {
                     if (!identity.Children[i].Active) continue;
                     DrawIdentity(spriteBatch, identity.Children[i]);
                 }
+            }
+            spriteBatch.End();
+            
+            //draw identities without applied camera matrix
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+            foreach (GameIdentity identity in ignoreViewMatrixIdentities) {
+                if (!identity.Active) continue;
+                DrawIdentity(spriteBatch, identity);
             }
             spriteBatch.End();
         }

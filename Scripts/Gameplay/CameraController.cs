@@ -11,6 +11,7 @@ namespace MonoTerrain.Scripts.Gameplay {
     
     public class CameraController {
         private readonly Tweener teleportTween = new Tweener();
+        private const float ZOOM_MULTIPLIER = 0.083f;
 
         private int currentMouseWheelValue;
         private float startZoomValue = 1f;
@@ -38,17 +39,9 @@ namespace MonoTerrain.Scripts.Gameplay {
         public void UpdateCamera(GameTime gameTime) {
             KeyboardState keyboardState = GameController.Instance.KeyboardState;
             MouseState mouseState = GameController.Instance.MouseState;
-            
-            float currentMovementSpeed = keyboardState.IsKeyDown(Keys.LeftShift) ? MovementSpeed * 100 * 2 : MovementSpeed * 100;
-            int previousMouseWheelValue = currentMouseWheelValue;
-            currentMouseWheelValue = mouseState.ScrollWheelValue;
 
-           /* if (currentMouseWheelValue > previousMouseWheelValue) {
-                Camera.ZoomIn(1 / 12f * Camera.Zoom * zoomSpeed);
-            }
-            if (currentMouseWheelValue < previousMouseWheelValue) {
-                Camera.ZoomOut(1 / 12f * Camera.Zoom * zoomSpeed);
-            }*/
+            HandleZooming(mouseState.ScrollWheelValue);
+            float currentMovementSpeed = keyboardState.IsKeyDown(Keys.LeftControl) ? MovementSpeed * 100 * 2 : MovementSpeed * 100;
 
             Vector2 rawDirection = GetMovementDirection(keyboardState);
             moveDirection = Vector2.Lerp(moveDirection, rawDirection, movementLerpSpeed * gameTime.GetElapsedSeconds());
@@ -56,7 +49,20 @@ namespace MonoTerrain.Scripts.Gameplay {
 
             if(rawDirection != Vector2.Zero)
                 onMovePosition?.Invoke(Camera.Position);
+
             teleportTween.Update(gameTime.GetElapsedSeconds());
+        }
+
+        private void HandleZooming(int scrollWheelValue) {
+            int previousMouseWheelValue = currentMouseWheelValue;
+            currentMouseWheelValue = scrollWheelValue;
+
+            if (currentMouseWheelValue > previousMouseWheelValue) {
+                Camera.ZoomIn(ZOOM_MULTIPLIER * Camera.Zoom * zoomSpeed);
+            }
+            if (currentMouseWheelValue < previousMouseWheelValue) {
+                Camera.ZoomOut(ZOOM_MULTIPLIER * Camera.Zoom * zoomSpeed);
+            }
         }
 
         public void TeleportTo(Vector2 teleportPosition, bool instant = false) {

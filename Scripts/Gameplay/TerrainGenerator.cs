@@ -83,7 +83,7 @@ namespace MonoTerrain.Scripts.Gameplay {
 
             foreach (GameIdentity identity in chunkManager.chunkContainers) {
                 identity.Active = false;
-                GameIdentityManager.Instance.InstantiateIdentity(identity, identity.Transform.position, true);
+                GameIdentityManager.Instance.InstantiateIdentity(identity, identity.Transform.position);
             }
 
             if (resetCameraPosition || isSetup) 
@@ -146,8 +146,8 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         public static Vector2 GetGridMousePosition() {
             return new Vector2(
-                (float)Math.Round(GameController.mouseWorldPos.X / tileTextureSize) * tileTextureSize,
-                (float)Math.Round(GameController.mouseWorldPos.Y / tileTextureSize) * tileTextureSize
+                (float)Math.Round(GameController.mouseScreenPosition.X / tileTextureSize) * tileTextureSize,
+                (float)Math.Round(GameController.mouseScreenPosition.Y / tileTextureSize) * tileTextureSize
             );
         }
 
