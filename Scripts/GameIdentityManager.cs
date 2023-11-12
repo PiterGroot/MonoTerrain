@@ -27,7 +27,12 @@ namespace MonoTerrain.Scripts {
             gameIdentity.Transform.position = position;
             ActiveGameIdentities.Add(gameIdentity.IdentityId, gameIdentity);
         }
-        
+
+        public void DestroyChildIdentity(int parentId, GameIdentity childIdentity) {
+            ActiveGameIdentities[parentId].Children.Remove(childIdentity);
+            CreatedIdentities--;
+        }
+
         public void DestroyIdentity(GameIdentity gameIdentity) 
             => DestroyIdentity(gameIdentity.IdentityId);
        

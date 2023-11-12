@@ -23,9 +23,14 @@ namespace MonoTerrain.Scripts
         public ImGuiRenderer guiRenderer { get; private set; }
         public TerrainGenerator TerrainGenerator { get; private set; }
         public static Vector2 mouseScreenPosition { get; private set; }
-        public static Vector2 mouseWorldPosition { 
+        public static Vector2 mouseWorldPosition { //TODO: :( !!!!!!!!
             get {
-                return CameraController.Instance.Camera.ScreenToWorld(mouseScreenPosition);
+                Vector2 mouseScreen = mouseScreenPosition;
+                mouseScreen.Y *= -1;
+
+                Vector2 screenToWorld = CameraController.Instance.Camera.ScreenToWorld(mouseScreen);
+                screenToWorld.Y *= -1;
+                return screenToWorld;
             }
         }
 

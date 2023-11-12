@@ -1,5 +1,4 @@
-﻿using static MonoTerrain.Scripts.GameHelper;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 
 namespace MonoTerrain.Scripts.Gameplay {
@@ -11,9 +10,13 @@ namespace MonoTerrain.Scripts.Gameplay {
         private void OnUpdate(GameTime gameTime) {
             if (GameController.Instance.MouseState.LeftButton == ButtonState.Pressed) {
                 Vector2 mouseGridPosition = TerrainGenerator.GetGridMousePosition();
-                /*if (TerrainGenerator.tiles.ContainsKey(mouseGridPosition)) {
-                    GameIdentityManager.Instance.DestroyIdentity(TerrainGenerator.tiles[mouseGridPosition].IdentityId, true);
-                }*/
+
+                int currentChunk = ChunkManager.instance.CurrentChunk;
+                GameIdentity chunkContainer = ChunkManager.instance.chunkContainers[currentChunk];
+
+                if (chunkContainer.GetChildByPosition(mouseGridPosition, out GameIdentity tile)) {
+                    GameIdentityManager.Instance.DestroyChildIdentity(chunkContainer.IdentityId, tile);
+                }
             }
         }
     }

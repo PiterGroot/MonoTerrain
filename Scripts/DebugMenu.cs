@@ -101,8 +101,10 @@ namespace MonoTerrain.Scripts {
             ImGui.TextDisabled($"{FramesHelper.AverageFramesPerSecond:F2}");
 
             ImGui.Text("Position: "); ImGui.SameLine();
-            float xPos = CameraController.Instance.Camera.Position.X;
-            float yPos = CameraController.Instance.Camera.Position.Y;
+
+            Vector2 camPosition = CameraController.GetCameraPosition();
+            float xPos = camPosition.X;
+            float yPos = camPosition.Y;
 
             ImGui.TextDisabled($"X [{xPos:F2}]"); ImGui.SameLine();
             ImGui.TextDisabled($"Y [{yPos:F2}]");

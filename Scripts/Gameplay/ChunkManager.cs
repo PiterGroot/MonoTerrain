@@ -7,11 +7,11 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         private int chunkClampValue;
         
+        public int CurrentChunk { get; private set; }
         public int ChunkCounter { get; private set; }
         public bool autoToggleChunks = true;
 
         public List<GameIdentity> chunkContainers = new List<GameIdentity>();
-        public Dictionary<int, List<TerrainGenerator.Tile>> chunks = new Dictionary<int, List<TerrainGenerator.Tile>>();
 
         public TerrainGenerator terrainGenerator;
 
@@ -35,7 +35,6 @@ namespace MonoTerrain.Scripts.Gameplay {
             float yPos = terrainGenerator.height * .5f;
 
             ChunkCounter++;
-            chunks.Add(ChunkCounter, new List<TerrainGenerator.Tile>());
             GameIdentity chunk = new GameIdentity($"Chunk {ChunkCounter}");
 
             Vector2 chunkPosition = TerrainGenerator.GetGridTilePosition(xPos, 0, 16 * 1);
@@ -47,12 +46,12 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         private void HandleTerrainGenerated() {
             chunkClampValue = chunkContainers.Count - 1;
-            ToggleChunks(GetNearestChunkIndex(CameraController.Instance.Camera.Position));
+            ToggleChunks(CurrentChunk = GetNearestChunkIndex(CameraController.GetCameraPosition()));
         }
 
         private void HandleMoveCamera(Vector2 newPosition) {
             if (!autoToggleChunks) return;
-            ToggleChunks(GetNearestChunkIndex(CameraController.Instance.Camera.Position));
+            ToggleChunks(CurrentChunk = GetNearestChunkIndex(newPosition));
         }
 
         private void ToggleChunks(int centerChunk) {
@@ -71,7 +70,7 @@ namespace MonoTerrain.Scripts.Gameplay {
             }
         }
 
-        private int GetNearestChunkIndex(Vector2 originPosition) {
+        public int GetNearestChunkIndex(Vector2 originPosition) {
             int closestChunkIndex = -1;
             float closestDistanceSqr = float.PositiveInfinity;
             Vector2 currentPosition = originPosition;

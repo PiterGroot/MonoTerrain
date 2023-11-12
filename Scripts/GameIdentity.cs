@@ -16,7 +16,8 @@ namespace MonoTerrain.Scripts {
             IdentityId = GameIdentityManager.Instance.CreatedIdentities;
 
             Texture2D loadedTexture = null;
-            try {
+            try { 
+                
                 loadedTexture = GameController.Instance.Content.Load<Texture2D>(texture);
             }
             catch {
@@ -42,6 +43,19 @@ namespace MonoTerrain.Scripts {
         public Transform Transform { get; set; }
         public GameVisual Visual { get; set; }
         public List<GameIdentity> Children { get; set; }
+
+        //TODO: too expensive, needs rework
+        public bool GetChildByPosition(Vector2 position, out GameIdentity gameIdentity) {
+            int l = Children.Count;
+            for (int i = 0; i < l; i++) {
+                if (Children[i].Transform.position == position) {
+                    gameIdentity = Children[i];
+                    return true;
+                }
+            }
+            gameIdentity = null;
+            return false;
+        }
     }
 
     public class GameVisual {

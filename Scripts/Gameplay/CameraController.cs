@@ -40,13 +40,14 @@ namespace MonoTerrain.Scripts.Gameplay {
             KeyboardState keyboardState = GameController.Instance.KeyboardState;
             MouseState mouseState = GameController.Instance.MouseState;
 
-            HandleZooming(mouseState.ScrollWheelValue);
+            //HandleZooming(mouseState.ScrollWheelValue);
             float currentMovementSpeed = keyboardState.IsKeyDown(Keys.LeftControl) ? MovementSpeed * 100 * 2 : MovementSpeed * 100;
 
             Vector2 rawDirection = GetMovementDirection(keyboardState);
+
             moveDirection = Vector2.Lerp(moveDirection, rawDirection, movementLerpSpeed * gameTime.GetElapsedSeconds());
             Camera.Position += moveDirection * currentMovementSpeed * gameTime.GetElapsedSeconds();
-
+            
             if(rawDirection != Vector2.Zero)
                 onMovePosition?.Invoke(Camera.Position);
 
@@ -96,5 +97,11 @@ namespace MonoTerrain.Scripts.Gameplay {
             return movementDirection;
         }
 
+        public static Vector2 GetCameraPosition() {
+            Vector2 position = CameraController.Instance.Camera.Position;
+            position.Y *= -1;
+
+            return position;
+        }
     }
 }

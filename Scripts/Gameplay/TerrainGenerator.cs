@@ -1,12 +1,11 @@
 ﻿using static MonoTerrain.Scripts.GameHelper;
-using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System;
 
 namespace MonoTerrain.Scripts.Gameplay {
     public class TerrainGenerator {
-        private int[,] map;
+        public static int[,] map;
         private OpenSimplexNoise simplexNoise;
         private ChunkManager chunkManager;
         public Action onTerrainGenerated;
@@ -146,8 +145,8 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         public static Vector2 GetGridMousePosition() {
             return new Vector2(
-                (float)Math.Round(GameController.mouseScreenPosition.X / tileTextureSize) * tileTextureSize,
-                (float)Math.Round(GameController.mouseScreenPosition.Y / tileTextureSize) * tileTextureSize
+                (float)Math.Round(GameController.mouseWorldPosition.X / tileTextureSize) * tileTextureSize,
+                (float)Math.Round(GameController.mouseWorldPosition.Y / tileTextureSize) * tileTextureSize
             );
         }
 
@@ -172,18 +171,7 @@ namespace MonoTerrain.Scripts.Gameplay {
                 tile.Transform.SetScale(Vector2.One * tileSize);
                 tile.Visual.textureColor = tileColor;
 
-                chunkManager.chunks[chunkManager.ChunkCounter].Add(new Tile(tilePosition, tile));
                 chunkManager.chunkContainers[chunkManager.ChunkCounter - 1].Children.Add(tile);
-            }
-        }
-
-        public struct Tile {
-            public Vector2 position;
-            public GameIdentity tileIdentity;
-
-            public Tile(Vector2 position, GameIdentity identity) {
-                this.position = position;
-                tileIdentity = identity;
             }
         }
     }
