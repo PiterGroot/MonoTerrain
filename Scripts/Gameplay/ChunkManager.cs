@@ -37,7 +37,7 @@ namespace MonoTerrain.Scripts.Gameplay {
             ChunkCounter++;
             GameIdentity chunk = new GameIdentity($"Chunk {ChunkCounter}");
 
-            Vector2 chunkPosition = TerrainGenerator.GetGridTilePosition(xPos, 0, 16 * 1);
+            Vector2 chunkPosition = TerrainGenerator.GetGridTilePosition(xPos, 0);
             chunkPosition.Y = -yPos;
 
             chunk.Transform.position = chunkPosition;

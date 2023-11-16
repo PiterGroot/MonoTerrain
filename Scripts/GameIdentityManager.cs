@@ -40,7 +40,7 @@ namespace MonoTerrain.Scripts {
             ActiveGameIdentities.Remove(identityId);
             CreatedIdentities--;
         }
-
+        
         public void DrawGameIdentities(SpriteBatch spriteBatch, GraphicsDevice device) {
             device.Clear(Color.CornflowerBlue);
 

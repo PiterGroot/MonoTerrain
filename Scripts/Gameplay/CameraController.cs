@@ -11,11 +11,8 @@ namespace MonoTerrain.Scripts.Gameplay {
     
     public class CameraController {
         private readonly Tweener teleportTween = new Tweener();
-        private const float ZOOM_MULTIPLIER = 0.083f;
 
-        private int currentMouseWheelValue;
         private float startZoomValue = 1f;
-        private int zoomSpeed = 3;
 
         private Vector2 moveDirection;
         private float movementLerpSpeed = 10;
@@ -29,8 +26,6 @@ namespace MonoTerrain.Scripts.Gameplay {
             var viewportAdapter = new BoxingViewportAdapter(window, graphicsDevice, viewport.Width, viewport.Height);
             Camera = new OrthographicCamera(viewportAdapter);
 
-            Camera.MinimumZoom = 0.3f;
-            Camera.MaximumZoom = 50;
             Camera.Zoom = startZoomValue;
 
             Instance = this;
@@ -40,7 +35,6 @@ namespace MonoTerrain.Scripts.Gameplay {
             KeyboardState keyboardState = GameController.Instance.KeyboardState;
             MouseState mouseState = GameController.Instance.MouseState;
 
-            //HandleZooming(mouseState.ScrollWheelValue);
             float currentMovementSpeed = keyboardState.IsKeyDown(Keys.LeftControl) ? MovementSpeed * 100 * 2 : MovementSpeed * 100;
 
             Vector2 rawDirection = GetMovementDirection(keyboardState);
@@ -52,18 +46,6 @@ namespace MonoTerrain.Scripts.Gameplay {
                 onMovePosition?.Invoke(Camera.Position);
 
             teleportTween.Update(gameTime.GetElapsedSeconds());
-        }
-
-        private void HandleZooming(int scrollWheelValue) {
-            int previousMouseWheelValue = currentMouseWheelValue;
-            currentMouseWheelValue = scrollWheelValue;
-
-            if (currentMouseWheelValue > previousMouseWheelValue) {
-                Camera.ZoomIn(ZOOM_MULTIPLIER * Camera.Zoom * zoomSpeed);
-            }
-            if (currentMouseWheelValue < previousMouseWheelValue) {
-                Camera.ZoomOut(ZOOM_MULTIPLIER * Camera.Zoom * zoomSpeed);
-            }
         }
 
         public void TeleportTo(Vector2 teleportPosition, bool instant = false) {
@@ -98,7 +80,7 @@ namespace MonoTerrain.Scripts.Gameplay {
         }
 
         public static Vector2 GetCameraPosition() {
-            Vector2 position = CameraController.Instance.Camera.Position;
+            Vector2 position = Instance.Camera.Position;
             position.Y *= -1;
 
             return position;

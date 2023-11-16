@@ -10,7 +10,7 @@ namespace MonoTerrain.Scripts.Gameplay {
         private ChunkManager chunkManager;
         public Action onTerrainGenerated;
 
-        public static readonly float tileSize = 1;
+        public static readonly float tileSize = .6f;
         public static readonly int tileTextureSize = 16;
         public static readonly int chunkSize = 100;
 
@@ -31,8 +31,8 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         public int seed = 12345;
 
-        public int width = 900;
-        public int height = 350;
+        public int width = 1000;
+        public int height = 600;
        
         private readonly int heightReduction = 10;
 
@@ -86,7 +86,7 @@ namespace MonoTerrain.Scripts.Gameplay {
             }
 
             if (resetCameraPosition || isSetup) 
-                CameraController.Instance.Camera.Position = GetGridTilePosition(width / 2, 0, 16 * tileSize);
+                CameraController.Instance.Camera.Position = GetGridTilePosition(width / 2, 0);
 
             onTerrainGenerated?.Invoke();
         }
@@ -105,7 +105,7 @@ namespace MonoTerrain.Scripts.Gameplay {
                     int tileKey = map[x, y];
                     if (tileKey == 0) continue; //ignore air tile
                     
-                    tileLibrary[map[x, y]].InstantiateTile(x, y, tileTextureSize, chunkManager);
+                    tileLibrary[map[x, y]].InstantiateTile(x, y, chunkManager);
                 }
             }
         }
@@ -139,8 +139,8 @@ namespace MonoTerrain.Scripts.Gameplay {
             return map;
         }
 
-        public static Vector2 GetGridTilePosition(float xPos, float yPos, float tileSize) {
-            return new Vector2(xPos * tileSize, yPos * tileSize);
+        public static Vector2 GetGridTilePosition(float xPos, float yPos) {
+            return new Vector2(xPos * tileTextureSize * tileSize, yPos * tileTextureSize * tileSize);
         }
 
         public static Vector2 GetGridMousePosition() {
@@ -163,9 +163,9 @@ namespace MonoTerrain.Scripts.Gameplay {
                 this.tileColor = tileColor;
             }
 
-            public void InstantiateTile(int x, int y, int tileTextureHeight, ChunkManager chunkManager) {
+            public void InstantiateTile(int x, int y, ChunkManager chunkManager) {
                 GameIdentity tile = new GameIdentity(tileName, tileTexture, tileRenderOrder);
-                Vector2 tilePosition = GetGridTilePosition(x, y, tileTextureHeight * tileSize);
+                Vector2 tilePosition = GetGridTilePosition(x, y);
                 tile.Transform.position = tilePosition;
                 
                 tile.Transform.SetScale(Vector2.One * tileSize);
