@@ -35,6 +35,9 @@ namespace MonoTerrain.Scripts.Gameplay {
         public int width = 1000;
         public int height = 600;
 
+        private int liveWidth = 200;
+        private int liveHeight = 500;
+
         private int prevWidth;
         private int prevHeight;
        
@@ -55,7 +58,7 @@ namespace MonoTerrain.Scripts.Gameplay {
         };
 
         public TerrainGenerator() {
-            simplexNoise = new OpenSimplexNoise(seed);
+            chunkManager = new ChunkManager(this);
 
             if (generateOnAwake) 
                 Generate(true);
@@ -70,9 +73,11 @@ namespace MonoTerrain.Scripts.Gameplay {
             bool current = isLiveGenerating;
             isLiveGenerating = !isLiveGenerating;
 
-            if(current && !isLiveGenerating) {
+            if (current && !isLiveGenerating) {
                 width = prevWidth;
                 height = prevHeight;
+
+                Generate(true);
             }
             
             prevWidth = width;
@@ -81,27 +86,16 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         public void Generate(bool isSetup) {
             if (isLiveGenerating) {
-                width = 200;
-                height = 300;
+                width = liveWidth;
+                height = liveHeight;
             }
 
             map = null;
-            if (chunkManager != null) {
-                int l = chunkManager.chunkContainers.Count;
-                for (int i = 0; i < l; i++) {
-                    int chunkChildren = chunkManager.chunkContainers[i].Children.Count;
-                    for (int j = 0; j < chunkChildren; j++) {
-                        GameIdentityManager.Instance.DestroyIdentity(chunkManager.chunkContainers[i].Children[j]);
-                    }
-                    chunkManager.chunkContainers[i].Children.Clear();
-                    GameIdentityManager.Instance.DestroyIdentity(chunkManager.chunkContainers[i]);
-                }
 
-                chunkManager.chunkContainers.Clear();
-            }
+            chunkManager.ClearData();
 
+            simplexNoise = new OpenSimplexNoise(seed);
             RandomHandler.SetSeed(seed);
-            chunkManager = new ChunkManager(this);
 
             if (randomSeed) seed = RandomHandler.GetRandomIntNumber(0, 99999);
             if (randomizeConfig) {
@@ -117,7 +111,6 @@ namespace MonoTerrain.Scripts.Gameplay {
             PopulateMap();
 
             foreach (GameIdentity identity in chunkManager.chunkContainers) {
-                //identity.Active = false;
                 GameIdentityManager.Instance.InstantiateIdentity(identity, identity.Transform.position);
             }
 

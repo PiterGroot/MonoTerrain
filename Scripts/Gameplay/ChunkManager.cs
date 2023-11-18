@@ -45,13 +45,13 @@ namespace MonoTerrain.Scripts.Gameplay {
         }
 
         private void HandleTerrainGenerated() {
-            //chunkClampValue = chunkContainers.Count - 1;
-            //ToggleChunks(CurrentChunk = GetNearestChunkIndex(CameraController.GetCameraPosition()));
+            chunkClampValue = chunkContainers.Count - 1;
+            ToggleChunks(CurrentChunk = GetNearestChunkIndex(CameraController.GetCameraPosition()));
         }
 
         private void HandleMoveCamera(Vector2 newPosition) {
-            //if (!autoToggleChunks) return;
-            //ToggleChunks(CurrentChunk = GetNearestChunkIndex(newPosition));
+            if (!autoToggleChunks) return;
+            ToggleChunks(CurrentChunk = GetNearestChunkIndex(newPosition));
         }
 
         private void ToggleChunks(int centerChunk) {
@@ -86,6 +86,22 @@ namespace MonoTerrain.Scripts.Gameplay {
             }
 
             return closestChunkIndex;
+        }
+
+        //safely destroy all existing chunks
+        public void ClearData() {
+            int l = chunkContainers.Count;
+            for (int i = 0; i < l; i++) {
+                int chunkChildren = chunkContainers[i].Children.Count;
+                for (int j = 0; j < chunkChildren; j++) {
+                    GameIdentityManager.Instance.DestroyIdentity(chunkContainers[i].Children[j]);
+                }
+                chunkContainers[i].Children.Clear();
+                GameIdentityManager.Instance.DestroyIdentity(chunkContainers[i]);
+            }
+
+            ChunkCounter = 0;
+            chunkContainers.Clear();
         }
     }
 }

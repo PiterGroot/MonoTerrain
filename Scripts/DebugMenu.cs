@@ -140,6 +140,7 @@ namespace MonoTerrain.Scripts {
 
         private void ShowShapingTab() {
             ImGui.PushItemWidth(100);
+
             ImGui.InputInt("World seed", ref terrainGenerator.seed); ImGui.SameLine();
 
             terrainGenerator.seed = Math.Clamp(terrainGenerator.seed, (int)terrainGenerator.seedMinMax.X, (int)terrainGenerator.seedMinMax.Y);
