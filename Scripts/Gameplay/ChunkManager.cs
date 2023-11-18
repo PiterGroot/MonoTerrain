@@ -45,13 +45,13 @@ namespace MonoTerrain.Scripts.Gameplay {
         }
 
         private void HandleTerrainGenerated() {
-            chunkClampValue = chunkContainers.Count - 1;
-            ToggleChunks(CurrentChunk = GetNearestChunkIndex(CameraController.GetCameraPosition()));
+            //chunkClampValue = chunkContainers.Count - 1;
+            //ToggleChunks(CurrentChunk = GetNearestChunkIndex(CameraController.GetCameraPosition()));
         }
 
         private void HandleMoveCamera(Vector2 newPosition) {
-            if (!autoToggleChunks) return;
-            ToggleChunks(CurrentChunk = GetNearestChunkIndex(newPosition));
+            //if (!autoToggleChunks) return;
+            //ToggleChunks(CurrentChunk = GetNearestChunkIndex(newPosition));
         }
 
         private void ToggleChunks(int centerChunk) {

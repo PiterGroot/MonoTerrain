@@ -45,6 +45,7 @@ namespace MonoTerrain.Scripts {
             currentWindowTab?.Invoke(); ImGui.NewLine();
 
             if (ImGui.Button("Generate")) terrainGenerator.Generate(false); ImGui.SameLine();
+            if (ImGui.Button("Live Generate Mode")) terrainGenerator.LiveGenerate();
 
             SetMouseVisible(ImGui.IsWindowHovered() || ImGui.IsAnyItemHovered());
             
@@ -116,9 +117,6 @@ namespace MonoTerrain.Scripts {
 
             ImGui.TextDisabled(mouseX + " " + mouseY);
            
-            ImGui.Text("Selected tile: "); ImGui.SameLine();
-            ImGui.ColorButton("Grass", new System.Numerics.Vector4(0, 255, 0, 255));
-
             ImGui.Checkbox("Reset Camera Postion", ref terrainGenerator.resetCameraPosition);
 
             if (ImGui.Button("Snap to zero point")) CameraController.Instance.Camera.Position = Vector2.Zero;

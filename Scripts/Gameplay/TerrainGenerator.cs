@@ -18,7 +18,8 @@ namespace MonoTerrain.Scripts.Gameplay {
         private readonly bool randomizeConfig = false;
         private readonly bool randomSeed = false;
 
-        public bool resetCameraPosition;
+        private bool isLiveGenerating = false;
+        public bool resetCameraPosition = false;
 
         public Vector2 seedMinMax = new Vector2(1, 999999);
 
@@ -33,6 +34,9 @@ namespace MonoTerrain.Scripts.Gameplay {
 
         public int width = 1000;
         public int height = 600;
+
+        private int prevWidth;
+        private int prevHeight;
        
         private readonly int heightReduction = 10;
 
@@ -51,17 +55,52 @@ namespace MonoTerrain.Scripts.Gameplay {
         };
 
         public TerrainGenerator() {
-            if (generateOnAwake) Generate(true);
+            simplexNoise = new OpenSimplexNoise(seed);
+
+            if (generateOnAwake) 
+                Generate(true);
+        }
+
+        public void LiveGenerateUpdate(GameTime gameTime) {
+            if (!isLiveGenerating) return;
+            Generate(false);
+        }
+
+        public void LiveGenerate() {
+            bool current = isLiveGenerating;
+            isLiveGenerating = !isLiveGenerating;
+
+            if(current && !isLiveGenerating) {
+                width = prevWidth;
+                height = prevHeight;
+            }
+            
+            prevWidth = width;
+            prevHeight = height;
         }
 
         public void Generate(bool isSetup) {
-            map = null;
-
-            if(chunkManager != null) {
-                foreach (GameIdentity identity in chunkManager.chunkContainers) {
-                    GameIdentityManager.Instance.DestroyIdentity(identity);
-                }
+            if (isLiveGenerating) {
+                width = 200;
+                height = 300;
             }
+
+            map = null;
+            if (chunkManager != null) {
+                int l = chunkManager.chunkContainers.Count;
+                for (int i = 0; i < l; i++) {
+                    int chunkChildren = chunkManager.chunkContainers[i].Children.Count;
+                    for (int j = 0; j < chunkChildren; j++) {
+                        GameIdentityManager.Instance.DestroyIdentity(chunkManager.chunkContainers[i].Children[j]);
+                    }
+                    chunkManager.chunkContainers[i].Children.Clear();
+                    GameIdentityManager.Instance.DestroyIdentity(chunkManager.chunkContainers[i]);
+                }
+
+                chunkManager.chunkContainers.Clear();
+            }
+
+            RandomHandler.SetSeed(seed);
             chunkManager = new ChunkManager(this);
 
             if (randomSeed) seed = RandomHandler.GetRandomIntNumber(0, 99999);
@@ -72,16 +111,13 @@ namespace MonoTerrain.Scripts.Gameplay {
                 smoothness = RandomHandler.GetRandomFloatingNumber(1, 100f);
             }
 
-            RandomHandler.SetSeed(seed);
-            simplexNoise = new OpenSimplexNoise(seed);
-
             map = InitializeMap(width, height);
             map = ApplyNoisePass(map, octaves, persistence, lacunarity, smoothness);
             
             PopulateMap();
 
             foreach (GameIdentity identity in chunkManager.chunkContainers) {
-                identity.Active = false;
+                //identity.Active = false;
                 GameIdentityManager.Instance.InstantiateIdentity(identity, identity.Transform.position);
             }
 
@@ -143,12 +179,6 @@ namespace MonoTerrain.Scripts.Gameplay {
             return new Vector2(xPos * tileTextureSize * tileSize, yPos * tileTextureSize * tileSize);
         }
 
-        public static Vector2 GetGridMousePosition() {
-            return new Vector2(
-                (float)Math.Round(GameController.mouseWorldPosition.X / tileTextureSize) * tileTextureSize,
-                (float)Math.Round(GameController.mouseWorldPosition.Y / tileTextureSize) * tileTextureSize
-            );
-        }
 
         private struct TilePreset {
             public string tileName;

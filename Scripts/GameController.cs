@@ -72,11 +72,11 @@ namespace MonoTerrain.Scripts
 
             _ = new CameraController(Window, GraphicsDevice, Viewport);
             _ = new GameIdentityManager();
-            _ = new WorldInteractor(this);
 
             TerrainGenerator = new TerrainGenerator();
             debugMenu = new DebugMenu(TerrainGenerator);
-            
+            OnUpdate += TerrainGenerator.LiveGenerateUpdate;
+
             base.Initialize();
         }
 
@@ -99,9 +99,9 @@ namespace MonoTerrain.Scripts
 
             Vector2 position = MouseState.Position.ToVector2() - CachedCenterPoint;
             position.Y *= -1;
-            mouseScreenPosition = position;
 
-            cursor.Transform.position = position;
+            mouseScreenPosition = position;
+            cursor.Transform.position = mouseScreenPosition;
 
             OnUpdate?.Invoke(gameTime);
             base.Update(gameTime);

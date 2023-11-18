@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace MonoTerrain.Scripts {
     public class GameIdentity{
@@ -11,9 +12,7 @@ namespace MonoTerrain.Scripts {
 
         public GameIdentity(string identityName = "", string texture = "", int renderOrder = 0, bool centeredOrigin = true) {
             Name = identityName == string.Empty ? "NewGameIdentity" : identityName;
-            
-            GameIdentityManager.Instance.CreatedIdentities++;
-            IdentityId = GameIdentityManager.Instance.CreatedIdentities;
+            IdentityId = GameHelper.RandomHandler.GetRandomIntNumber(0, 999999);
 
             Texture2D loadedTexture = null;
             try { 

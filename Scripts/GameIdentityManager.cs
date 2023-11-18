@@ -9,8 +9,6 @@ namespace MonoTerrain.Scripts {
         private Viewport viewport;
         private Vector2 positionOffset;
 
-        public int CreatedIdentities { get; set; }
-
         public List<GameIdentity> ignoreViewMatrixIdentities = new List<GameIdentity>();
         private Dictionary<int, GameIdentity> ActiveGameIdentities { get; set; }
 
@@ -30,7 +28,6 @@ namespace MonoTerrain.Scripts {
 
         public void DestroyChildIdentity(int parentId, GameIdentity childIdentity) {
             ActiveGameIdentities[parentId].Children.Remove(childIdentity);
-            CreatedIdentities--;
         }
 
         public void DestroyIdentity(GameIdentity gameIdentity) 
@@ -38,9 +35,11 @@ namespace MonoTerrain.Scripts {
        
         public void DestroyIdentity(int identityId) {
             ActiveGameIdentities.Remove(identityId);
-            CreatedIdentities--;
         }
-        
+
+        public int GetActiveCount()
+            => ActiveGameIdentities.Count;
+
         public void DrawGameIdentities(SpriteBatch spriteBatch, GraphicsDevice device) {
             device.Clear(Color.CornflowerBlue);
 
