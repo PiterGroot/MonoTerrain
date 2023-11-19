@@ -70,7 +70,8 @@ namespace MonoTerrain.Scripts {
         }
 
         private void DrawChunkInspector() {
-            ImGui.Begin("Chunk Inspector");
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(400, 275));
+            ImGui.Begin("Chunk Inspector", ImGuiWindowFlags.NoResize);
             ImGui.Text("Chunks");
 
             if (ImGui.Button("Load all")) ChunkManager.instance.SetAllChunks(true); ImGui.SameLine();
@@ -87,8 +88,16 @@ namespace MonoTerrain.Scripts {
 
             if (ImGui.Button("Snap")) 
                 CameraController.Instance.TeleportTo(ChunkManager.instance.chunkContainers[currentSelectedChunk].Transform.position);
-            
+
             ImGui.EndGroup();
+            ImGui.NewLine();
+
+            ImGui.Text("Selected chunk: "); ImGui.SameLine();
+            ImGui.TextDisabled($"[Chunk {currentSelectedChunk}]");
+
+            ImGui.Text("Tiles count: "); ImGui.SameLine();
+            ImGui.TextDisabled($"{ChunkManager.instance.chunkContainers[currentSelectedChunk].Children.Count}");
+
             ImGui.End();
         }
 

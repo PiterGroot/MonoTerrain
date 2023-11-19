@@ -35,8 +35,8 @@ namespace MonoTerrain.Scripts.Gameplay {
         public int width = 1000;
         public int height = 600;
 
-        private int liveWidth = 200;
-        private int liveHeight = 500;
+        private readonly int liveWidth = 200;
+        private readonly int liveHeight = 500;
 
         private int prevWidth;
         private int prevHeight;
@@ -64,7 +64,7 @@ namespace MonoTerrain.Scripts.Gameplay {
                 Generate(true);
         }
 
-        public void LiveGenerateUpdate(GameTime gameTime) {
+        public void LiveGenerateUpdate(GameTime _) {
             if (!isLiveGenerating) return;
             Generate(false);
         }
@@ -79,7 +79,9 @@ namespace MonoTerrain.Scripts.Gameplay {
 
                 Generate(true);
             }
-            
+            else
+                CameraController.Instance.TeleportTo(ChunkManager.instance.chunkContainers[0].Transform.position);
+
             prevWidth = width;
             prevHeight = height;
         }
