@@ -26,7 +26,20 @@ namespace MonoTerrain.Scripts {
                 { new WindowTab("Decoration", ShowDecorationTab) },
             };
             currentWindowTab += windowTabs[0].drawWindow;
-            
+
+            RefreshChunkStrings();
+
+            terrainGenerator.onMapPopulated += () => {
+                currentSelectedChunk = Math.Clamp(ChunkManager.instance.CurrentChunk, 0, ChunkManager.instance.chunkContainers.Count - 1);
+                RefreshChunkStrings();
+            };
+
+            terrainGenerator.onTerrainGenerated += () => {
+                currentSelectedChunk = ChunkManager.instance.CurrentChunk;
+            };
+        }
+
+        private void RefreshChunkStrings() {
             chunkStrings = new string[ChunkManager.instance.ChunkCounter];
             for (int i = 0; i < chunkStrings.Length; i++) {
                 chunkStrings[i] = $"Chunk {i}";
@@ -36,7 +49,7 @@ namespace MonoTerrain.Scripts {
         public void DrawDebugWindow(GameTime gameTime) {
             ImGuiRenderer guiRenderer = GameController.Instance.guiRenderer;
             guiRenderer.BeforeLayout(gameTime);
-            ImGui.SetNextWindowSize(new System.Numerics.Vector2(275, 500));
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(275, 300));
             ImGui.Begin("MonoTerrain - Terrain Tool", ImGuiWindowFlags.NoResize);
 
             DrawWindowTabs();
@@ -103,7 +116,7 @@ namespace MonoTerrain.Scripts {
 
         private void DrawGameInfoWindow() {
             ImGui.SetWindowPos(new System.Numerics.Vector2(465, 0));
-            ImGui.SetNextWindowSize(new System.Numerics.Vector2(265, 265));
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(265, 180));
             ImGui.Begin("MonoTerrain - Debug Window", ImGuiWindowFlags.NoResize);
 
             ImGui.Text("Info");
@@ -149,11 +162,11 @@ namespace MonoTerrain.Scripts {
 
         private void ShowShapingTab() {
             ImGui.PushItemWidth(100);
-
-            ImGui.InputInt("World seed", ref terrainGenerator.seed); ImGui.SameLine();
-
             terrainGenerator.seed = Math.Clamp(terrainGenerator.seed, (int)terrainGenerator.seedMinMax.X, (int)terrainGenerator.seedMinMax.Y);
+            
             if (ImGui.Button("Random")) terrainGenerator.seed = RandomHandler.GetRandomIntNumber(0, 999999);
+            ImGui.SameLine();
+            ImGui.InputInt("World seed", ref terrainGenerator.seed); 
 
             ImGui.PushItemWidth(75);
             ImGui.InputInt("Width", ref terrainGenerator.width, 0); ImGui.SameLine();

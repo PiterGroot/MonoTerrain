@@ -6,9 +6,10 @@ namespace MonoTerrain.Scripts.Gameplay {
     public class ChunkManager {
 
         private int chunkClampValue;
-        
+
         public int CurrentChunk { get; private set; }
         public int ChunkCounter { get; private set; }
+        
         public bool autoToggleChunks = true;
 
         public List<GameIdentity> chunkContainers = new List<GameIdentity>();

@@ -6,9 +6,12 @@ using System;
 namespace MonoTerrain.Scripts.Gameplay {
     public class TerrainGenerator {
         public static int[,] map;
+
         private OpenSimplexNoise simplexNoise;
         private ChunkManager chunkManager;
+        
         public Action onTerrainGenerated;
+        public Action onMapPopulated;
 
         public static readonly float tileSize = .6f;
         public static readonly int tileTextureSize = 16;
@@ -93,7 +96,6 @@ namespace MonoTerrain.Scripts.Gameplay {
             }
 
             map = null;
-
             chunkManager.ClearData();
 
             simplexNoise = new OpenSimplexNoise(seed);
@@ -111,6 +113,7 @@ namespace MonoTerrain.Scripts.Gameplay {
             map = ApplyNoisePass(map, octaves, persistence, lacunarity, smoothness);
             
             PopulateMap();
+            onMapPopulated?.Invoke();
 
             foreach (GameIdentity identity in chunkManager.chunkContainers) {
                 GameIdentityManager.Instance.InstantiateIdentity(identity, identity.Transform.position);
